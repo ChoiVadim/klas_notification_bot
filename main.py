@@ -38,7 +38,7 @@ TIME_THRESHOLDS = {
 # Add registration handlers
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
-    await message.reply(
+    await message.answer(
         "Welcome! Please register to use the service.\nUse /register to start registration."
     )
 
@@ -53,7 +53,8 @@ async def cmd_register(message: types.Message, state: FSMContext):
 async def process_username(message: types.Message, state: FSMContext):
     await state.update_data(username=message.text)
     await state.set_state(RegistrationStates.waiting_for_password)
-    await message.reply("Please enter your password:")
+    await message.answer("Please enter your password:")
+    await message.delete()
 
 
 @dp.message(RegistrationStates.waiting_for_password)
@@ -67,7 +68,7 @@ async def process_password(message: types.Message, state: FSMContext):
         async with KwangwoonUniversityApi() as kw:
             isLogin = await kw.login(username, password)
             if not isLogin:
-                await message.reply(
+                await message.answer(
                     "Invalid credentials. Please check your username and password and try again with /register"
                 )
                 return
@@ -85,16 +86,17 @@ async def process_password(message: types.Message, state: FSMContext):
         with open("users.json", "w") as f:
             json.dump(users, f)
 
-        await message.reply(
+        await message.answer(
             "Registration successful! You will now receive notifications."
         )
 
     except Exception as e:
-        await message.reply(
+        await message.answer(
             "Registration failed. Please check your credentials and try again with /register"
         )
-
-    await state.clear()
+    finally:
+        await message.delete()
+        await state.clear()
 
 
 async def send_notification(message: str, user_id: str, urgency_level: int):
