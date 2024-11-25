@@ -45,8 +45,9 @@ This bot is made for the students of Kwangwoon University 🏫
 This bot will track your all assignments and notify you when they are less than 24 hours left 🧭
 
 If you want to see all your tasks to do, use /show 🔍
+If you want to see your student info, use /info 📚
 
-You need to register to use main features.
+You need to register to use main features.  
 This bot will encrypt your credentials.
 So don't worry about your privacy.
 🔄 Use /register to start registration.
@@ -64,6 +65,42 @@ Made with ❤️ by @tsoivadim
         photo=photo,
         caption=caption,
     )
+
+
+@dp.message(Command("info"))
+async def cmd_info(message: types.Message):
+    async with KwangwoonUniversityApi() as kw:
+        try:
+            with open("users.json", "r") as f:
+                users = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            await message.answer("You need to register first. Use /register to start.")
+            return
+
+        user_id = str(message.from_user.id)
+        credentials = users.get(user_id)
+
+        if not credentials:
+            await message.answer("You need to register first. Use /register to start.")
+            return
+
+        await kw.login(credentials["username"], credentials["password"])
+        student_info = await kw.get_student_info()
+        msg = (
+            f"🎉 Your student info:\n"
+            f"UID: {student_info['uid']}\n"
+            f"Name: {student_info['name']}\n"
+            f"Major: {student_info['major']}\n"
+            f"Grade: {student_info['grade']}\n"
+            f"Semester: {student_info['semester']}\n"
+            f"Total Credits: {student_info['credits']['total']}/{student_info['credits']['required']}\n"
+            f"Major Credits: {student_info['major_credits']['total']}/{student_info['major_credits']['required']}\n"
+            f"Elective Credits: {student_info['elective_credits']['total']}/{student_info['elective_credits']['required']}\n"
+            f"Average Score: {student_info['average_score']}\n"
+            f"Credits for each semester: {student_info['credits_for_each_semester']}\n"
+            f"Major Credits for each semester: {student_info['major_credits_for_each_semester']}"
+        )
+        await message.answer(msg)
 
 
 @dp.message(Command("register"))
@@ -373,7 +410,7 @@ if __name__ == "__main__":
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         filename="log.txt",
-        filemode="w",
+        filemode="a",
         encoding="UTF-8",
     )
     asyncio.run(main())
