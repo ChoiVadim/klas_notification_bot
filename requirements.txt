@@ -1,0 +1,6 @@
+fake-useragent
+bs4
+aiohttp
+python-dotenv
+aiogram
+pycryptodome
