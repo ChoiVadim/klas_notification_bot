@@ -137,7 +137,7 @@ async def show_all_assignments(message: types.Message):
             subject_name = subject.get("name", "Unknown Subject")
             has_assignments = False
 
-            subject_tasks = f"{subject_name:_^40}\n"
+            subject_tasks = f"📘 {subject_name}"
 
             for assignment_type, emoji in type_emojis.items():
                 assignments = subject["todo"].get(assignment_type, [])
@@ -165,7 +165,7 @@ async def show_all_assignments(message: types.Message):
                             f"  • {assignment.get('title', 'Untitled')}\n"
                             f"    ⏰ Time remaining: {time_str}\n"
                         )
-            subject_tasks += f"{'_' * (40 + len(subject_name))}\n\n"
+            subject_tasks += "\n\n"
 
             if has_assignments:
                 response += subject_tasks + "\n"
