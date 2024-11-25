@@ -1,0 +1,13 @@
+[Unit]
+Description=Kwangwoon University Todo Bot Daemon
+After=network.target
+
+[Service]
+User=vadim
+Group=www-data
+WorkingDirectory=/home/vadim/klas_notification_bot
+Environment="PATH=/home/vadim/klas_notification_bot/.venv/bin"
+ExecStart="python3 main.py"
+
+[Install]
+WantedBy=multi-user.target
