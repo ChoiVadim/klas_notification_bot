@@ -10,6 +10,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from kw_api import KwangwoonUniversityApi
+from llm import generate_advice
 
 load_dotenv()
 
@@ -300,6 +301,11 @@ async def check_todos():
             }
 
         await asyncio.sleep(900)
+
+
+@dp.message()
+async def other_message(message: types.Message):
+    await bot.send_message(message.from_user.id, await generate_advice(message.text))
 
 
 async def main():

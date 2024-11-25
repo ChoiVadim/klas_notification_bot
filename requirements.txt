@@ -4,3 +4,4 @@ aiohttp
 python-dotenv
 aiogram
 pycryptodome
+google-generativeai
