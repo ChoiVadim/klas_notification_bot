@@ -110,23 +110,30 @@ async def send_notification(message: str, user_id: str, urgency_level: int):
 
 
 async def check_todos():
+    # Add notification tracking dictionary at the start of the function
+    notification_tracker = (
+        {}
+    )  # Format: {user_id: {assignment_id: set(sent_thresholds)}}
+
     while True:
         try:
             with open("users.json", "r") as f:
                 users = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
-            # Create empty users.json file if it doesn't exist or is malformed
             users = {}
             with open("users.json", "w") as f:
                 json.dump(users, f)
-            continue  # Skip to next iteration since we have no users
+            continue
 
         for user_id, credentials in users.items():
+            # Initialize user's tracker if not exists
+            if user_id not in notification_tracker:
+                notification_tracker[user_id] = {}
+
             async with KwangwoonUniversityApi() as kw:
                 await kw.login(credentials["username"], credentials["password"])
                 todo_list = await kw.get_todo_list()
 
-                # Dictionary to store messages for each time threshold
                 threshold_messages = {
                     threshold: "" for threshold in TIME_THRESHOLDS.keys()
                 }
@@ -146,8 +153,14 @@ async def check_todos():
                     for assignment_type, emoji in type_emojis.items():
                         assignments = subject["todo"].get(assignment_type, [])
                         if assignments:
-                            # Let's check the first assignment only for now
                             for assignment in assignments:
+                                # Create unique assignment identifier
+                                assignment_id = f"{subject_name}_{assignment_type}_{assignment.get('title', '')}"
+
+                                # Initialize assignment tracker if not exists
+                                if assignment_id not in notification_tracker[user_id]:
+                                    notification_tracker[user_id][assignment_id] = set()
+
                                 left_time = assignment["left_time"].seconds
                                 days_left = assignment["left_time"].days
                                 hours_left = left_time // 3600
@@ -155,12 +168,11 @@ async def check_todos():
                                 if abs(days_left) > 0:
                                     continue
 
-                                # Check against each threshold
                                 for threshold in TIME_THRESHOLDS.keys():
-                                    # If the time left is less than the threshold but greater than
-                                    # the next lower threshold (if any)
-                                    if hours_left <= threshold and hours_left > (
-                                        max(
+                                    if (
+                                        hours_left <= threshold
+                                        and hours_left
+                                        > max(
                                             [
                                                 t
                                                 for t in TIME_THRESHOLDS.keys()
@@ -168,30 +180,60 @@ async def check_todos():
                                             ],
                                             default=0,
                                         )
-                                    ):
+                                        and threshold
+                                        not in notification_tracker[user_id][
+                                            assignment_id
+                                        ]
+                                    ):  # Check if notification wasn't sent
+
                                         threshold_messages[threshold] += (
                                             f"{emoji} {subject_name}: "
                                             f"{assignment_type.title()} you have "
                                             f"{hours_left} hour{'s' if hours_left != 1 else ''} "
                                             f"and {left_time % 3600 // 60} minutes left😭\n"
                                         )
+                                        # Mark this threshold as notified for this assignment
+                                        notification_tracker[user_id][
+                                            assignment_id
+                                        ].add(threshold)
 
                 # Send notifications for each threshold that has messages
                 for threshold, message in threshold_messages.items():
                     if message:
                         await send_notification(message, user_id, threshold)
-                        # Add small delay between notifications to prevent flooding
                         await asyncio.sleep(1)
 
-        # Wait for 15 minutes before checking again
-        await asyncio.sleep(900)  # 900 seconds = 15 minutes
+            # Clean up old assignments from tracker
+            current_assignments = {
+                f"{subject['name']}_{type_}_{assignment.get('title', '')}"
+                for subject in todo_list
+                for type_ in type_emojis.keys()
+                for assignment in subject["todo"].get(type_, [])
+            }
+
+            notification_tracker[user_id] = {
+                assignment_id: thresholds
+                for assignment_id, thresholds in notification_tracker[user_id].items()
+                if assignment_id in current_assignments
+            }
+
+        await asyncio.sleep(900)
 
 
 async def main():
-    print("Starting todo check service...")
+    logging.info("Starting todo check service...")
     # Start polling in parallel with todo checking
     await asyncio.gather(dp.start_polling(bot), check_todos())
 
 
 if __name__ == "__main__":
+    import logging
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        filename="log.txt",
+        filemode="w",
+        encoding="UTF-8",
+    )
     asyncio.run(main())
