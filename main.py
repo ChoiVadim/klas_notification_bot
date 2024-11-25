@@ -137,10 +137,10 @@ async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery)
     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
 
-@dp.message()
-async def process_successful_payment(message: types.Message):
-    if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
-        await message.answer("Thank you for your donation!")
+# @dp.message(content_types=types.ContentType.SUCCESSFUL_PAYMENT)
+# async def process_successful_payment(message: types.Message):
+#     if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
+#         await message.answer("Thank you for your donation!")
 
 
 @dp.message(Command("refund"))
