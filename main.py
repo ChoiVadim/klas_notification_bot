@@ -8,6 +8,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import FSInputFile
 
 from kw_api import KwangwoonUniversityApi
 from llm import generate_advice
@@ -39,8 +40,27 @@ TIME_THRESHOLDS = {
 # Add registration handlers
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
-    await message.answer(
-        "👋 Welcome! Please register to use the service.\n🔄 Use /register to start registration.\n🔍 Use /show to see your all assignments to do."
+    caption = f"""Welcome, {message.from_user.first_name}!👋
+This bot is made for the students of Kwangwoon University.
+Will track your assignments and notify you when they are less than 24 hours left.
+
+You want to see all your tasks to do?
+🔍 Use /show to see your all tasks to do.
+
+You need to register to use main features.
+🔄 Use /register to start registration.
+
+If you have any questions, you can ask me anything!
+💬 Use me as a normal chat.
+
+
+Made with ❤️ by @tsoivadim
+☕️ Buy me a coffee /donate 
+"""
+    photo = FSInputFile("images/logo.jpg")
+    await message.reply_photo(
+        photo=photo,
+        caption=caption,
     )
 
 
@@ -98,6 +118,36 @@ async def process_password(message: types.Message, state: FSMContext):
     finally:
         await message.delete()
         await state.clear()
+
+
+@dp.message(Command("donate"))
+async def cmd_donate(message: types.Message):
+    await message.reply_invoice(
+        title="Buy me a coffee!😁",
+        description="Thank you for using my bot!",
+        prices=[types.LabeledPrice(label="Donation", amount=1)],
+        currency="XTR",
+        payload="donate",
+        provider_token="",
+    )
+
+
+@dp.pre_checkout_query()
+async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery):
+    await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
+
+
+@dp.message()
+async def process_successful_payment(message: types.Message):
+    if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
+        await message.answer("Thank you for your donation!")
+
+
+@dp.message(Command("refund"))
+async def cmd_refund(message: types.Message):
+    await message.answer(
+        "To request a refund, please contact @tsoivadim directly with your transaction ID."
+    )
 
 
 @dp.message(Command("show"))
