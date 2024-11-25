@@ -41,21 +41,23 @@ TIME_THRESHOLDS = {
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     caption = f"""Welcome, {message.from_user.first_name}!👋
-This bot is made for the students of Kwangwoon University.
-Will track your assignments and notify you when they are less than 24 hours left.
+This bot is made for the students of Kwangwoon University 🏫
+This bot will track your all assignments and notify you when they are less than 24 hours left 🧭
 
-You want to see all your tasks to do?
-🔍 Use /show to see your all tasks to do.
+If you want to see all your tasks to do, use /show 🔍
 
 You need to register to use main features.
+This bot will encrypt your credentials.
+So don't worry about your privacy.
 🔄 Use /register to start registration.
+After registration you can delete your credentials with run /register again.
 
-If you have any questions, you can ask me anything!
-💬 Use me as a normal chat.
-
+I would appreciate if you could help me to improve this bot.
+Send me any feedback or suggestions to @tsoivadim 💬
+And i will try to improve this bot as soon as possible!
 
 Made with ❤️ by @tsoivadim
-☕️ Buy me a coffee /donate 
+☕️ Buy me a coffee /donate
 """
     photo = FSInputFile("images/logo.jpg")
     await message.reply_photo(
