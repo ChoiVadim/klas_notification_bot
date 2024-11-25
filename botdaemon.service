@@ -7,7 +7,7 @@ User=vadim
 Group=www-data
 WorkingDirectory=/home/vadim/klas_notification_bot
 Environment="PATH=/home/vadim/klas_notification_bot/.venv/bin"
-ExecStart="python3 main.py"
+ExecStart=/home/vadim/klas_notification_bot/.venv/bin/python3 main.py
 
 [Install]
 WantedBy=multi-user.target
