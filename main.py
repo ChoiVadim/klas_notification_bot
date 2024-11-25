@@ -39,21 +39,21 @@ TIME_THRESHOLDS = {
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     await message.answer(
-        "Welcome! Please register to use the service.\nUse /register to start registration."
+        "👋 Welcome! Please register to use the service.\n🔄 Use /register to start registration.\n🔍 Use /show to see your all assignments to do."
     )
 
 
 @dp.message(Command("register"))
 async def cmd_register(message: types.Message, state: FSMContext):
     await state.set_state(RegistrationStates.waiting_for_username)
-    await message.reply("Please enter your Kwangwoon University username:")
+    await message.reply("🔄 Please enter your Kwangwoon University username:")
 
 
 @dp.message(RegistrationStates.waiting_for_username)
 async def process_username(message: types.Message, state: FSMContext):
     await state.update_data(username=message.text)
     await state.set_state(RegistrationStates.waiting_for_password)
-    await message.answer("Please enter your password:")
+    await message.answer("🔑 Please enter your password:")
     await message.delete()
 
 
@@ -69,7 +69,7 @@ async def process_password(message: types.Message, state: FSMContext):
             isLogin = await kw.login(username, password)
             if not isLogin:
                 await message.answer(
-                    "Invalid credentials. Please check your username and password and try again with /register"
+                    "🚫 Invalid credentials. Please check your username and password and try again with /register"
                 )
                 return
 
