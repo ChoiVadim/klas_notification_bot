@@ -310,6 +310,10 @@ async def check_todos():
                     threshold: "" for threshold in TIME_THRESHOLDS.keys()
                 }
 
+                if not todo_list:
+                    logging.info(f"No todo list found for user {user_id}")
+                    continue
+
                 for subject in todo_list:
                     subject_name = subject.get("name", "Unknown Subject")
 
