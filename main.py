@@ -175,19 +175,29 @@ async def cmd_donate(message: types.Message):
 async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery):
     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
-
-# @dp.message(content_types=types.ContentType.SUCCESSFUL_PAYMENT)
-# async def process_successful_payment(message: types.Message):
-#     if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
-#         await message.answer("Thank you for your donation!")
-
-
 @dp.message(Command("refund"))
 async def cmd_refund(message: types.Message):
-    await message.answer(
-        "To request a refund, please contact @tsoivadim directly with your transaction ID."
-    )
+    try:
+        # Check if the message is a reply to a payment message
+        if not message.reply_to_message or not message.reply_to_message.successful_payment:
+            await message.answer("Please reply to a payment message to request a refund.")
+            return
 
+        payment = message.reply_to_message.successful_payment
+        
+        # Attempt to refund the payment
+        result = await bot.refund_star_payment(
+            user_id=message.from_user.id,
+            telegram_payment_charge_id=payment.telegram_payment_charge_id
+        )
+        
+        if result:
+            await message.answer("✅ Refund has been processed successfully.")
+        else:
+            await message.answer("❌ Refund request was not successful. Please try again later.")
+            
+    except Exception as e:
+        await message.answer(f"❌ Error processing refund: {str(e)}")
 
 @dp.message(Command("show"))
 async def show_all_assignments(message: types.Message):
@@ -398,7 +408,10 @@ async def check_todos():
 
 @dp.message()
 async def other_message(message: types.Message):
-    await bot.send_message(message.from_user.id, await generate_advice(message.text))
+    if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
+        await message.answer("Thank you for your donation!")
+    else:
+        await bot.send_message(message.from_user.id, await generate_advice(message.text))
 
 
 async def main():
