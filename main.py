@@ -11,11 +11,19 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import FSInputFile
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from kw_api import KwangwoonUniversityApi
 from llm import generate_response
+from scrapers import get_today_school_food_menu
 
 load_dotenv()
+
+# Create inline keyboard
+todos_keyboard = InlineKeyboardBuilder()
+todos_keyboard.button(text="Show only 3 days left", callback_data="filter_3")
+todos_keyboard.button(text="Show only 1 week left", callback_data="filter_7")
+todos_keyboard.adjust(2)
 
 
 # Define states for registration
@@ -190,29 +198,43 @@ async def cmd_donate(message: types.Message):
 async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery):
     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
+
 @dp.message(Command("refund"))
 async def cmd_refund(message: types.Message):
     try:
         # Check if the message is a reply to a payment message
-        if not message.reply_to_message or not message.reply_to_message.successful_payment:
-            await message.answer("Please reply to a payment message to request a refund.")
+        if (
+            not message.reply_to_message
+            or not message.reply_to_message.successful_payment
+        ):
+            await message.answer(
+                "Please reply to a payment message to request a refund."
+            )
             return
 
         payment = message.reply_to_message.successful_payment
-        
+
         # Attempt to refund the payment
         result = await bot.refund_star_payment(
             user_id=message.from_user.id,
-            telegram_payment_charge_id=payment.telegram_payment_charge_id
+            telegram_payment_charge_id=payment.telegram_payment_charge_id,
         )
-        
+
         if result:
             await message.answer("✅ Refund has been processed successfully.")
         else:
-            await message.answer("❌ Refund request was not successful. Please try again later.")
-            
+            await message.answer(
+                "❌ Refund request was not successful. Please try again later."
+            )
+
     except Exception as e:
         await message.answer(f"❌ Error processing refund: {str(e)}")
+
+
+@dp.message(Command("menu"))
+async def show_school_food_menu(message: types.Message):
+    await message.answer(await get_today_school_food_menu())
+
 
 @dp.message(Command("show"))
 async def show_all_assignments(message: types.Message):
@@ -293,7 +315,19 @@ async def show_all_assignments(message: types.Message):
                 for i in range(0, len(response), 4096):
                     await message.answer(response[i : i + 4096])
             else:
-                await message.answer(response)
+                await message.answer(response, reply_markup=todos_keyboard.as_markup())
+
+
+# @dp.callback_query()
+# async def process_callback_query(callback_query: types.CallbackQuery):
+#     if callback_query.data == "filter_3":
+#         await callback_query.message.edit_text(
+#             "Showing only assignments with less than 3 days left..."
+#         )
+#     elif callback_query.data == "filter_7":
+#         await callback_query.message.edit_text(
+#             "Showing only assignments with less than 1 week left..."
+#         )
 
 
 async def send_notification(message: str, user_id: str, urgency_level: int):
@@ -426,7 +460,9 @@ async def other_message(message: types.Message):
     if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
         await message.answer("Thank you for your donation!")
     else:
-        await bot.send_message(message.from_user.id, await generate_response(message.text))
+        await bot.send_message(
+            message.from_user.id, await generate_response(message.text)
+        )
 
 
 async def main():
