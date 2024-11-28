@@ -1,6 +1,8 @@
 import os
 import json
 import asyncio
+import aiohttp
+from pathlib import Path
 
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types
@@ -11,7 +13,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import FSInputFile
 
 from kw_api import KwangwoonUniversityApi
-from llm import generate_advice
+from llm import generate_response
 
 load_dotenv()
 
@@ -44,21 +46,18 @@ async def cmd_start(message: types.Message):
 This bot is made for the students of Kwangwoon University 🏫
 This bot will track your all assignments and notify you when they are less than 24 hours left 🧭
 
-If you want to see all your tasks to do, use /show 🔍
-If you want to see your student info, use /info 📚
+/register to start registration
+/show If you want to see all your tasks to do 🔍
+/info If you want to see your graduation information 📝
 
-You need to register to use main features.  
-This bot will encrypt your credentials.
-So don't worry about your privacy.
-🔄 Use /register to start registration.
-After registration you can delete your credentials with run /register again.
+❗ You need to register to use main features. This bot will encrypt your password and username. I do not save your credentials in visible form. So don't worry about your privacy.
+After registration you can delete your credentials when you want using /register again.
 
 I would appreciate if you could help me to improve this bot.
 Send me any feedback or suggestions to @tsoivadim 💬
 And i will try to improve this bot as soon as possible!
 
 Made with ❤️ by @tsoivadim
-☕️ Buy me a coffee /donate
 """
     photo = FSInputFile("images/logo.jpg")
     await message.reply_photo(
@@ -86,21 +85,37 @@ async def cmd_info(message: types.Message):
 
         await kw.login(credentials["username"], credentials["password"])
         student_info = await kw.get_student_info()
+
+        photos_dir = Path("images/photos")
+        photos_dir.mkdir(exist_ok=True)
+        photo_path = photos_dir / f"student_{message.from_user.id}.jpg"
+
+        if not photo_path.exists():
+            student_photo_url = await kw.get_student_photo_url()
+            async with aiohttp.ClientSession() as session:
+                async with session.get(student_photo_url) as response:
+                    if response.status == 200:
+                        with open(photo_path, "wb") as f:
+                            f.write(await response.read())
+                    else:
+                        photo_path = "images/logo.jpg"
+
+        student_photo_file = FSInputFile(str(photo_path))
+
         msg = (
-            f"🎉 Your student info:\n"
-            f"UID: {student_info['uid']}\n"
-            f"Name: {student_info['name']}\n"
+            f"📝 UID: {student_info['uid']} \n"
+            f"👨‍🎓 Name: {student_info['name']} \n"
             f"Major: {student_info['major']}\n"
-            f"Grade: {student_info['grade']}\n"
-            f"Semester: {student_info['semester']}\n"
-            f"Total Credits: {student_info['credits']['total']}/{student_info['credits']['required']}\n"
+            f"Grade: {student_info['grade']} Semester: {student_info['semester']}\n"
+            f"🎯 Total Credits: {student_info['credits']['total']}/{student_info['credits']['required']}\n"
             f"Major Credits: {student_info['major_credits']['total']}/{student_info['major_credits']['required']}\n"
             f"Elective Credits: {student_info['elective_credits']['total']}/{student_info['elective_credits']['required']}\n"
-            f"Average Score: {student_info['average_score']}\n"
-            f"Credits for each semester: {student_info['credits_for_each_semester']}\n"
-            f"Major Credits for each semester: {student_info['major_credits_for_each_semester']}"
+            f"Average Score: {student_info['average_score']} 📈\n\n"
+            f"❗ Recommendation: take at least {student_info['credits_for_each_semester']} credits each semester and {student_info['major_credits_for_each_semester']} major credits each semester to graduate on time!\n\n"
+            f"P.S. As a foreigner student, we don't need to care about elective credits but if you have TOPIC less than 4, you need to take Korean language classes and get TOPIC 4 at least before graduation 🇰🇷"
         )
-        await message.answer(msg)
+
+        await message.reply_photo(photo=student_photo_file, caption=msg)
 
 
 @dp.message(Command("register"))
@@ -411,7 +426,7 @@ async def other_message(message: types.Message):
     if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
         await message.answer("Thank you for your donation!")
     else:
-        await bot.send_message(message.from_user.id, await generate_advice(message.text))
+        await bot.send_message(message.from_user.id, await generate_response(message.text))
 
 
 async def main():
