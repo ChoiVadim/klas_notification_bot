@@ -89,10 +89,19 @@ async def other_message(message: types.Message):
     try:
         if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
             await message.answer("Thank you for your donation!")
-        else:
-            await bot.send_message(
-                message.from_user.id, await generate_response(message.text)
+
+        elif message.content_type == types.ContentType.REFUNDED_PAYMENT:
+            await message.answer(
+                "Your payment has been refunded. Please contact the support if you have any questions."
             )
+
+        elif message.text.startswith("/"):
+            await message.reply(
+                "This command is not available in the chat. Please use the command from the bot menu."
+            )
+
+        else:
+            await message.reply(await generate_response(message.text))
     except Exception as e:
         logging.error(f"Error in other_message: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))
