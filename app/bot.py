@@ -22,6 +22,7 @@ def setup_handlers(dp: Dispatcher):
         callbacks,
         admin,
         news,
+        library,
     )
 
     # Register all handlers
@@ -32,5 +33,6 @@ def setup_handlers(dp: Dispatcher):
     callbacks.register_handlers(dp)
     admin.register_handlers(dp)
     news.register_handlers(dp)
+    library.register_handlers(dp)
     # Common handlers must be registered last
     common.register_handlers(dp)
