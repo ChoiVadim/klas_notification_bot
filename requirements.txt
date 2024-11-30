@@ -9,3 +9,6 @@ sqlalchemy
 cryptography
 aiosqlite
 redis
+pydantic-settings
+pydantic
+

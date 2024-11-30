@@ -1,7 +1,7 @@
 import json
 import asyncio
-from database import init_db, save_user
-from encryptor import encrypt_password
+from app.database.database import init_db, save_user
+from app.utils.encryption import encrypt_password
 
 
 async def migrate_users():

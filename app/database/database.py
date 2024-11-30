@@ -1,26 +1,10 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, String, select
-from sqlalchemy.exc import SQLAlchemyError
 import logging
+from sqlalchemy import select
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
-# Create base class for declarative models
-Base = declarative_base()
-
-# Define User model
-class User(Base):
-    __tablename__ = "users"
-
-    user_id = Column(String, primary_key=True)
-    username = Column(String, nullable=False)
-    encrypted_password = Column(String, nullable=False)
-
-    def to_dict(self):
-        return {
-            "username": self.username,
-            "password": self.encrypted_password,
-        }
+from app.database.models import Base, User
 
 # Create an async engine
 engine = create_async_engine("sqlite+aiosqlite:///bot_users.db", echo=True)
@@ -30,11 +14,13 @@ AsyncSessionLocal = sessionmaker(
     bind=engine, class_=AsyncSession, expire_on_commit=False
 )
 
+
 async def init_db():
     """Initialize the database, creating all tables"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logging.info("Database initialized successfully")
+
 
 async def save_user(user_id: str, username: str, encrypted_password: str):
     """Save or update user in database"""
@@ -59,6 +45,7 @@ async def save_user(user_id: str, username: str, encrypted_password: str):
                 logging.error(f"Error saving user: {e}")
                 return False
 
+
 async def get_user(user_id: str):
     """Get user from database"""
     async with AsyncSessionLocal() as session:
@@ -69,6 +56,7 @@ async def get_user(user_id: str):
             logging.error(f"Error getting user: {e}")
             return None
 
+
 async def get_all_users():
     """Get all users from database"""
     async with AsyncSessionLocal() as session:
@@ -78,6 +66,7 @@ async def get_all_users():
         except SQLAlchemyError as e:
             logging.error(f"Error getting all users: {e}")
             return []
+
 
 async def delete_user(user_id: str):
     """Delete user from database"""

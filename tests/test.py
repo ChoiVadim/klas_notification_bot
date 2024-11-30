@@ -1,4 +1,4 @@
-from database import init_db, get_all_users
+from app.database.database import init_db, get_all_users
 
 import asyncio
 

@@ -3,12 +3,11 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
 def create_todos_keyboard():
-    # Create inline keyboard
     todos_keyboard = InlineKeyboardBuilder()
     todos_keyboard.button(text="Show only 3 days left", callback_data="filter_3")
     todos_keyboard.button(text="Show only 1 week left", callback_data="filter_7")
     todos_keyboard.adjust(2)
-    return todos_keyboard
+    return todos_keyboard.as_markup()
 
 
 def create_food_menu_keyboard():
