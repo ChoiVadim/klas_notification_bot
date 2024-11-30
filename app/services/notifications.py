@@ -24,8 +24,8 @@ async def send_notification(message: str, user_id: str, urgency_level: int):
     try:
         emoji = TIME_THRESHOLDS.get(urgency_level, "📌")
         prefix = f"{emoji} {urgency_level} hour{'s' if urgency_level > 1 else ''} remaining!\n\n"
-
-        await bot.send_message(chat_id=user_id, text=prefix + message)
+        postfix = "🚨 Don't forget to do it! 🚨"
+        await bot.send_message(chat_id=user_id, text=prefix + message + postfix)
     except Exception as e:
         print(f"Error sending notification: {e}")
 
@@ -79,6 +79,7 @@ async def check_todos():
                                 left_time = assignment["left_time"].seconds
                                 days_left = assignment["left_time"].days
                                 hours_left = left_time // 3600
+                                title = assignment["title"]
 
                                 if abs(days_left) > 0:
                                     continue
@@ -102,10 +103,11 @@ async def check_todos():
                                     ):  # Check if notification wasn't sent
 
                                         threshold_messages[threshold] += (
-                                            f"{emoji} {subject_name}: "
-                                            f"{assignment_type.title()} you have "
-                                            f"{hours_left} hour{'s' if hours_left != 1 else ''} "
-                                            f"and {left_time % 3600 // 60} minutes left😭\n"
+                                            f"{emoji} {subject_name}\n"
+                                            f"Type: {assignment_type.title()}\n"
+                                            f"Title: {title}\n"
+                                            f"Time left: {hours_left} hour{'s' if hours_left != 1 else ''}"
+                                            f" and {left_time % 3600 // 60} minutes\n\n"
                                         )
                                         # Mark this threshold as notified for this assignment
                                         notification_tracker[user_id][

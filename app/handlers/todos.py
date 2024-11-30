@@ -33,7 +33,7 @@ async def show_all_assignments(message: types.Message):
                 "team_projects": "👥",
             }
 
-            response = "📋 Your Todo List:\n\n"
+            response = "📋 Your Todo List:\n\n\n"
 
             for subject in todo_list:
                 subject_name = subject.get("name", "Unknown Subject")
