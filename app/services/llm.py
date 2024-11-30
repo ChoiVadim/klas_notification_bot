@@ -26,8 +26,8 @@ def create_tuned_model():
 
     base_model = "models/gemini-1.5-flash-001-tuning"
     training_data = [
-        {"text_input": "1", "output": "2"},
-        {"text_input": "seven", "output": "eight"},
+        {"Lib reservation system": "1", "output": "2"},
+        {"Lib reservation system": "seven", "output": "eight"},
     ]
     operation = genai.create_tuned_model(
         display_name="increment",

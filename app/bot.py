@@ -21,6 +21,7 @@ def setup_handlers(dp: Dispatcher):
         student_info,
         callbacks,
         admin,
+        news,
     )
 
     # Register all handlers
@@ -30,4 +31,6 @@ def setup_handlers(dp: Dispatcher):
     food.register_handlers(dp)
     callbacks.register_handlers(dp)
     admin.register_handlers(dp)
+    news.register_handlers(dp)
+    # Common handlers must be registered last
     common.register_handlers(dp)

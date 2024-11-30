@@ -7,7 +7,7 @@ from app.utils.encryption import encrypt_password
 async def migrate_users():
     await init_db()
     try:
-        with open("users.json", "r") as f:
+        with open("../users.json", "r") as f:
             users = json.load(f)
 
         for user_id, credentials in users.items():
