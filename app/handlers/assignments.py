@@ -1,83 +1,90 @@
+import logging
 from aiogram.filters import Command
 from aiogram import Dispatcher, types
 
 from app.database.database import get_user
 from app.utils.encryption import decrypt_password
 from app.services.kw import KwangwoonUniversityApi
+from app.strings import Strings, Language
 
 
 async def show_all_assignments(message: types.Message):
-    user_id = str(message.from_user.id)
-    user = await get_user(user_id)
+    try:
+        user_id = str(message.from_user.id)
+        user = await get_user(user_id)
 
-    if not user:
-        await message.answer("You need to register first. Use /register to start.")
-        return
-
-    async with KwangwoonUniversityApi() as kw:
-        await kw.login(user.username, decrypt_password(user.encrypted_password))
-        todo_list = await kw.get_todo_list()
-
-        if not todo_list:
-            await message.answer("No assignments found or failed to fetch assignments.")
+        if not user:
+            await message.answer(Strings.get("need_to_register", Language.EN))
             return
 
-        # Assignment type emojis
-        type_emojis = {
-            "lectures": "📚",
-            "homeworks": "📝",
-            "quizzes": "🧠",
-            "team_projects": "👥",
-        }
+        async with KwangwoonUniversityApi() as kw:
+            await kw.login(user.username, decrypt_password(user.encrypted_password))
+            todo_list = await kw.get_todo_list()
 
-        response = "📋 Your Todo List:\n\n"
+            if not todo_list:
+                await message.answer(Strings.get("no_assignments", Language.EN))
+                return
 
-        for subject in todo_list:
-            subject_name = subject.get("name", "Unknown Subject")
-            has_assignments = False
+            # Assignment type emojis
+            type_emojis = {
+                "lectures": "📚",
+                "homeworks": "📝",
+                "quizzes": "🧠",
+                "team_projects": "👥",
+            }
 
-            subject_tasks = f"📘 {subject_name}"
+            response = "📋 Your Todo List:\n\n"
 
-            for assignment_type, emoji in type_emojis.items():
-                assignments = subject["todo"].get(assignment_type, [])
-                if assignments:
-                    has_assignments = True
-                    subject_tasks += f"\n{emoji} {assignment_type.title()}:\n"
+            for subject in todo_list:
+                subject_name = subject.get("name", "Unknown Subject")
+                has_assignments = False
 
-                    for assignment in assignments:
-                        left_time = assignment["left_time"]
-                        days = left_time.days
-                        hours = left_time.seconds // 3600
-                        minutes = (left_time.seconds % 3600) // 60
+                subject_tasks = f"📘 {subject_name}"
 
-                        if days < 0 or hours < 0 or minutes < 0:
-                            continue
+                for assignment_type, emoji in type_emojis.items():
+                    assignments = subject["todo"].get(assignment_type, [])
+                    if assignments:
+                        has_assignments = True
+                        subject_tasks += f"\n{emoji} {assignment_type.title()}:\n"
 
-                        time_str = ""
-                        if days > 0:
-                            time_str += f"{days}d "
-                        if hours > 0:
-                            time_str += f"{hours}h "
-                        time_str += f"{minutes}m"
+                        for assignment in assignments:
+                            left_time = assignment["left_time"]
+                            days = left_time.days
+                            hours = left_time.seconds // 3600
+                            minutes = (left_time.seconds % 3600) // 60
 
-                        subject_tasks += (
-                            f"  • {assignment.get('title', 'Untitled')}\n"
-                            f"    ⏰ Time remaining: {time_str}\n"
-                        )
-            subject_tasks += "\n\n"
+                            if days < 0 or hours < 0 or minutes < 0:
+                                continue
 
-            if has_assignments:
-                response += subject_tasks + "\n"
+                            time_str = ""
+                            if days > 0:
+                                time_str += f"{days}d "
+                            if hours > 0:
+                                time_str += f"{hours}h "
+                            time_str += f"{minutes}m"
 
-        if response == "📋 Your Todo List:\n\n":
-            await message.answer("No pending assignments! 🎉")
-        else:
-            # Split message if it's too long
-            if len(response) > 4096:
-                for i in range(0, len(response), 4096):
-                    await message.answer(response[i : i + 4096])
+                            subject_tasks += (
+                                f"  • {assignment.get('title', 'Untitled')}\n"
+                                f"    ⏰ Time remaining: {time_str}\n"
+                            )
+                subject_tasks += "\n\n"
+
+                if has_assignments:
+                    response += subject_tasks + "\n"
+
+            if response == "📋 Your Todo List:\n\n":
+                await message.answer(Strings.get("no_assignments", Language.EN))
             else:
-                await message.answer(response)
+                # Split message if it's too long
+                if len(response) > 4096:
+                    for i in range(0, len(response), 4096):
+                        await message.answer(response[i : i + 4096])
+                else:
+                    await message.answer(response)
+
+    except Exception as e:
+        logging.error(f"Error in show_all_assignments: {e}")
+        await message.answer(Strings.get("unexpected_error", Language.EN))
 
 
 def register_handlers(dp: Dispatcher):

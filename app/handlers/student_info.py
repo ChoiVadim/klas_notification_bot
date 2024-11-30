@@ -1,4 +1,5 @@
 import aiohttp
+import logging
 from pathlib import Path
 
 from aiogram import Dispatcher, types
@@ -8,56 +9,69 @@ from aiogram.types import FSInputFile
 from app.database.database import get_user
 from app.utils.encryption import decrypt_password
 from app.services.kw import KwangwoonUniversityApi
+from app.strings import Strings, Language
 
 
 async def cmd_info(message: types.Message):
-    async with KwangwoonUniversityApi() as kw:
-        user_id = str(message.from_user.id)
-        user = await get_user(user_id)
-
+    try:
+        # Check if user is registered
+        user = await get_user(str(message.from_user.id))
         if not user:
-            await message.answer("You need to register first. Use /register to start.")
+            await message.answer(Strings.get("need_to_register", Language.EN))
             return
 
-        await kw.login(user.username, decrypt_password(user.encrypted_password))
-        student_info = await kw.get_student_info()
+        async with KwangwoonUniversityApi() as kw:
+            await kw.login(user.username, decrypt_password(user.encrypted_password))
+            student_info = await kw.get_student_info()
 
-        if not student_info:
-            await message.answer(
-                "Failed to fetch student information. Please try again later."
+            if not student_info:
+                await message.answer(
+                    Strings.get("failed_to_fetch_student_info", Language.EN)
+                )
+                return
+
+            photos_dir = Path("images/photos")
+            photos_dir.mkdir(exist_ok=True)
+            photo_path = photos_dir / f"student_{message.from_user.id}.jpg"
+
+            if not photo_path.exists():
+                student_photo_url = await kw.get_student_photo_url()
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(student_photo_url) as response:
+                        if response.status == 200:
+                            with open(photo_path, "wb") as f:
+                                f.write(await response.read())
+                        else:
+                            photo_path = "images/logo.jpg"
+
+            student_photo_file = FSInputFile(str(photo_path))
+
+            msg = Strings.get(
+                "student_info",
+                Language.EN,
+                uid=student_info["uid"],
+                name=student_info["name"],
+                major=student_info["major"],
+                grade=student_info["grade"],
+                semester=student_info["semester"],
+                total_credits=student_info["credits"]["total"],
+                required_credits=student_info["credits"]["required"],
+                major_credits_total=student_info["major_credits"]["total"],
+                major_credits_required=student_info["major_credits"]["required"],
+                elective_credits_total=student_info["elective_credits"]["total"],
+                elective_credits_required=student_info["elective_credits"]["required"],
+                average_score=student_info["average_score"],
+                credits_per_semester=student_info["credits_for_each_semester"],
+                major_credits_per_semester=student_info[
+                    "major_credits_for_each_semester"
+                ],
             )
-            return
 
-        photos_dir = Path("images/photos")
-        photos_dir.mkdir(exist_ok=True)
-        photo_path = photos_dir / f"student_{message.from_user.id}.jpg"
+            await message.reply_photo(photo=student_photo_file, caption=msg)
 
-        if not photo_path.exists():
-            student_photo_url = await kw.get_student_photo_url()
-            async with aiohttp.ClientSession() as session:
-                async with session.get(student_photo_url) as response:
-                    if response.status == 200:
-                        with open(photo_path, "wb") as f:
-                            f.write(await response.read())
-                    else:
-                        photo_path = "images/logo.jpg"
-
-        student_photo_file = FSInputFile(str(photo_path))
-
-        msg = (
-            f"📝 UID: {student_info['uid']} \n"
-            f"👨‍🎓 Name: {student_info['name']} \n"
-            f"Major: {student_info['major']}\n"
-            f"Grade: {student_info['grade']} Semester: {student_info['semester']}\n"
-            f"🎯 Total Credits: {student_info['credits']['total']}/{student_info['credits']['required']}\n"
-            f"Major Credits: {student_info['major_credits']['total']}/{student_info['major_credits']['required']}\n"
-            f"Elective Credits: {student_info['elective_credits']['total']}/{student_info['elective_credits']['required']}\n"
-            f"Average Score: {student_info['average_score']} 📈\n\n"
-            f"❗ Recommendation: take at least {student_info['credits_for_each_semester']} credits each semester and {student_info['major_credits_for_each_semester']} major credits each semester to graduate on time!\n\n"
-            f"P.S. As a foreigner student, we don't need to care about elective credits but if you have TOPIC less than 4, you need to take Korean language classes and get TOPIC 4 at least before graduation 🇰🇷"
-        )
-
-        await message.reply_photo(photo=student_photo_file, caption=msg)
+    except Exception as e:
+        logging.error(f"Unexpected error in cmd_info: {e}")
+        await message.answer(Strings.get("unexpected_error", Language.EN))
 
 
 def register_handlers(dp: Dispatcher):

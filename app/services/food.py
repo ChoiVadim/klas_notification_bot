@@ -3,6 +3,8 @@ import asyncio
 from datetime import datetime
 from bs4 import BeautifulSoup
 
+from app.strings import Strings, Language
+
 local_cache = {}
 
 
@@ -61,28 +63,19 @@ async def get_menu_for_day(day_index: int):
 async def get_today_school_food_menu():
     today_index = datetime.now().weekday() % 7
     if today_index > 4:
-        return "🚨 School is closed on the weekend 🚨"
+        return Strings.get("school_closed_on_weekend", Language.EN)
     return await get_menu_for_day(today_index)
 
 
 async def get_tomorrow_school_food_menu():
     tomorrow_index = (datetime.now().weekday() + 1) % 7
     if tomorrow_index > 4:
-        return "🚨 School is closed on the weekend 🚨"
+        return Strings.get("school_closed_on_weekend", Language.EN)
     return await get_menu_for_day(tomorrow_index)
 
 
 async def get_school_food_info():
-    return """
-<천원의 아침> is a meal that costs 1000 won and availabel only from 8.00 AM to 9.00 AM.
-Location: 복지관 2층
-
-<중식> is a meal that costs 3000 won and available from 11.00 AM to 1.00 PM.
-Location: 복지관 2층
-
-<푸드코트> is a meal that costs 4000 won and available from 11.00 AM to 1.00 PM.
-Location: 복지관 1층
-"""
+    return Strings.get("school_food_info", Language.EN)
 
 
 if __name__ == "__main__":

@@ -21,9 +21,44 @@ User question: {message}"""
     return res.text
 
 
+def create_tuned_model():
+    import time
+
+    base_model = "models/gemini-1.5-flash-001-tuning"
+    training_data = [
+        {"text_input": "1", "output": "2"},
+        {"text_input": "seven", "output": "eight"},
+    ]
+    operation = genai.create_tuned_model(
+        display_name="increment",
+        source_model=base_model,
+        epoch_count=20,
+        batch_size=2,  # Adjusted batch size to be no larger than training examples size
+        learning_rate=0.001,
+        training_data=training_data,
+    )
+
+    for status in operation.wait_bar():
+        time.sleep(10)
+
+    result = operation.result()
+    print(result)
+    # # You can plot the loss curve with:
+    # snapshots = pd.DataFrame(result.tuning_task.snapshots)
+    # sns.lineplot(data=snapshots, x='epoch', y='mean_loss')
+
+    model = genai.GenerativeModel(model_name=result.name)
+    try:
+        result = model.generate_content("III")
+        print(result.text)  # IV
+    except ValueError as e:
+        print(f"Error generating content: {e}")
+
+
 if __name__ == "__main__":
     import asyncio
     import dotenv
 
     dotenv.load_dotenv()
     print(asyncio.run(generate_response("Hello, how are you?")))
+    create_tuned_model()
