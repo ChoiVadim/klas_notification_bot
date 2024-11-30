@@ -6,11 +6,17 @@ from aiogram.types import FSInputFile
 
 from app.services.library import generate_qr_code
 from app.strings import Strings, Language
+from app.database.database import get_user
 
 
 async def cmd_qr(message: types.Message):
     try:
-        qr_code_path = generate_qr_code(str(message.from_user.id))
+        user = await get_user(str(message.from_user.id))
+        if not user:
+            await message.answer(Strings.get("user_not_found", Language.EN))
+            return
+
+        qr_code_path = generate_qr_code(user.username)
         await message.reply_photo(FSInputFile(qr_code_path))
     except Exception as e:
         logging.error(f"Error in cmd_qr: {e}")
