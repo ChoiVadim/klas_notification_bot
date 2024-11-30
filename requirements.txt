@@ -5,3 +5,7 @@ python-dotenv
 aiogram
 pycryptodome
 google-generativeai
+sqlalchemy
+cryptography
+aiosqlite
+redis

@@ -11,19 +11,19 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import FSInputFile
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from encryptor import encrypt_password, decrypt_password
 from kw_api import KwangwoonUniversityApi
 from llm import generate_response
-from scrapers import get_today_school_food_menu
+from scrapers import (
+    get_today_school_food_menu,
+    get_tomorrow_school_food_menu,
+    get_school_food_info,
+)
+from database import init_db, save_user, get_user, get_all_users, delete_user
+from keyboards import create_food_menu_keyboard, create_back_to_food_menu_keyboard
 
 load_dotenv()
-
-# Create inline keyboard
-todos_keyboard = InlineKeyboardBuilder()
-todos_keyboard.button(text="Show only 3 days left", callback_data="filter_3")
-todos_keyboard.button(text="Show only 1 week left", callback_data="filter_7")
-todos_keyboard.adjust(2)
 
 
 # Define states for registration
@@ -55,12 +55,11 @@ This bot is made for the students of Kwangwoon University 🏫
 This bot will track your all assignments and notify you when they are less than 24 hours left 🧭
 
 /register to start registration
+/unregister to delete all your information from the bot
 /show If you want to see all your tasks to do 🔍
 /info If you want to see your graduation information 📝
 
 ❗ You need to register to use main features. This bot will encrypt your password and username. I do not save your credentials in visible form. So don't worry about your privacy.
-After registration you can delete your credentials when you want using /register again.
-
 I would appreciate if you could help me to improve this bot.
 Send me any feedback or suggestions to @tsoivadim 💬
 And i will try to improve this bot as soon as possible!
@@ -156,22 +155,17 @@ async def process_password(message: types.Message, state: FSMContext):
                 )
                 return
 
-        # Save user credentials
+        # Save user credentials to the database
         user_id = str(message.from_user.id)
-        try:
-            with open("users.json", "r") as f:
-                users = json.load(f)
-        except FileNotFoundError:
-            users = {}
-
-        users[user_id] = {"username": username, "password": password}
-
-        with open("users.json", "w") as f:
-            json.dump(users, f)
-
-        await message.answer(
-            "Registration successful! You will now receive notifications."
-        )
+        encrypted_password = encrypt_password(password)
+        if await save_user(user_id, username, encrypted_password):
+            await message.answer(
+                "Registration successful! You will now receive notifications."
+            )
+        else:
+            await message.answer(
+                "Failed to save your credentials. Please try again later."
+            )
 
     except Exception as e:
         await message.answer(
@@ -180,6 +174,12 @@ async def process_password(message: types.Message, state: FSMContext):
     finally:
         await message.delete()
         await state.clear()
+
+
+@dp.message(Command("unregister"))
+async def cmd_unregister(message: types.Message):
+    await delete_user(str(message.from_user.id))
+    await message.answer("You have been unregistered from the bot.")
 
 
 @dp.message(Command("donate"))
@@ -233,27 +233,22 @@ async def cmd_refund(message: types.Message):
 
 @dp.message(Command("menu"))
 async def show_school_food_menu(message: types.Message):
-    await message.answer(await get_today_school_food_menu())
+    await message.answer(
+        await get_today_school_food_menu(), reply_markup=create_food_menu_keyboard()
+    )
 
 
 @dp.message(Command("show"))
 async def show_all_assignments(message: types.Message):
+    user_id = str(message.from_user.id)
+    user = await get_user(user_id)
+
+    if not user:
+        await message.answer("You need to register first. Use /register to start.")
+        return
+
     async with KwangwoonUniversityApi() as kw:
-        try:
-            with open("users.json", "r") as f:
-                users = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            await message.answer("You need to register first. Use /register to start.")
-            return
-
-        user_id = str(message.from_user.id)
-        credentials = users.get(user_id)
-
-        if not credentials:
-            await message.answer("You need to register first. Use /register to start.")
-            return
-
-        await kw.login(credentials["username"], credentials["password"])
+        await kw.login(user.username, decrypt_password(user.encrypted_password))
         todo_list = await kw.get_todo_list()
 
         if not todo_list:
@@ -315,19 +310,34 @@ async def show_all_assignments(message: types.Message):
                 for i in range(0, len(response), 4096):
                     await message.answer(response[i : i + 4096])
             else:
-                await message.answer(response, reply_markup=todos_keyboard.as_markup())
+                await message.answer(response)
 
 
-# @dp.callback_query()
-# async def process_callback_query(callback_query: types.CallbackQuery):
-#     if callback_query.data == "filter_3":
-#         await callback_query.message.edit_text(
-#             "Showing only assignments with less than 3 days left..."
-#         )
-#     elif callback_query.data == "filter_7":
-#         await callback_query.message.edit_text(
-#             "Showing only assignments with less than 1 week left..."
-#         )
+@dp.callback_query()
+async def process_callback_query(callback_query: types.CallbackQuery):
+    if callback_query.data == "filter_3":
+        await callback_query.message.edit_text(
+            "Showing only assignments with less than 3 days left..."
+        )
+    elif callback_query.data == "filter_7":
+        await callback_query.message.edit_text(
+            "Showing only assignments with less than 1 week left..."
+        )
+    elif callback_query.data == "filter_food_info":
+        await callback_query.message.edit_text(
+            await get_school_food_info(),
+            reply_markup=create_back_to_food_menu_keyboard(),
+        )
+    elif callback_query.data == "filter_today":
+        await callback_query.message.edit_text(
+            await get_today_school_food_menu(),
+            reply_markup=create_food_menu_keyboard(),
+        )
+    elif callback_query.data == "filter_tomorrow":
+        await callback_query.message.edit_text(
+            await get_tomorrow_school_food_menu(),
+            reply_markup=create_back_to_food_menu_keyboard(),
+        )
 
 
 async def send_notification(message: str, user_id: str, urgency_level: int):
@@ -341,28 +351,18 @@ async def send_notification(message: str, user_id: str, urgency_level: int):
 
 
 async def check_todos():
-    # Add notification tracking dictionary at the start of the function
-    notification_tracker = (
-        {}
-    )  # Format: {user_id: {assignment_id: set(sent_thresholds)}}
+    notification_tracker = {}
 
     while True:
-        try:
-            with open("users.json", "r") as f:
-                users = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            users = {}
-            with open("users.json", "w") as f:
-                json.dump(users, f)
-            continue
+        users = await get_all_users()
 
-        for user_id, credentials in users.items():
-            # Initialize user's tracker if not exists
+        for user in users:
+            user_id = user.user_id
             if user_id not in notification_tracker:
                 notification_tracker[user_id] = {}
 
             async with KwangwoonUniversityApi() as kw:
-                await kw.login(credentials["username"], credentials["password"])
+                await kw.login(user.username, decrypt_password(user.encrypted_password))
                 todo_list = await kw.get_todo_list()
 
                 threshold_messages = {
@@ -467,6 +467,7 @@ async def other_message(message: types.Message):
 
 async def main():
     logging.info("Starting todo check service...")
+    await init_db()  # Initialize the database
     # Start polling in parallel with todo checking
     await asyncio.gather(dp.start_polling(bot), check_todos())
 

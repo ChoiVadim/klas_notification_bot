@@ -3,3 +3,5 @@
 *.json
 *cache*
 log.txt
+*.db
+*.key
