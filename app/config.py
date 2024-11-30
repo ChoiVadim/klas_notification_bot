@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY")
     DATABASE_URL: str = "sqlite+aiosqlite:///bot_users.db"
     NOTIFICATION_CHECK_INTERVAL: int = 900  # 15 minutes
+    ADMIN_ID: int = int(os.getenv("ADMIN_ID"))
 
     class Config:
         env_file = ".env"
