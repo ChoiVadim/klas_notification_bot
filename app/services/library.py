@@ -34,41 +34,7 @@ async def fetch_books(query: str):
                         print(title, info)
 
 
-def generate_qr_code(student_id: str):
-    # Convert the timestamp to a similar format: "YYYYMMDDHHMMSS"
-    today = datetime.now().strftime("%Y%m%d")
-    seconds = datetime.now().strftime("%H%M%S%f")[:11]
-
-    final_code = f"_KW 0{student_id}{today}{seconds}"
-
-    # Create a QR code instance
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-
-    # Add the data to the QR code
-    qr.add_data(final_code)
-    qr.make(fit=True)
-
-    # Create an image from the QR code
-    img = qr.make_image(fill="black", back_color="white")
-
-    # Ensure the temp directory exists
-    os.makedirs("temp", exist_ok=True)
-
-    # Save to a temporary file
-    filename = f"images/qr_{student_id}.png"
-    img.save(filename)
-
-    return filename
-
-
 if __name__ == "__main__":
     from pprint import pprint
 
-    # pprint(asyncio.run(fetch_books("skill for success")))
-    print("_KW 020222035022024120106353981236")
-    pprint(generate_qr_code("2022203502"))
+    pprint(asyncio.run(fetch_books("skill for success")))
