@@ -12,4 +12,3 @@ redis
 pydantic-settings
 pydantic
 qrcode
-
