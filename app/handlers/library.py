@@ -51,4 +51,4 @@ async def cmd_find_book(message: types.Message):
 
 def register_handlers(dp: Dispatcher):
     dp.message.register(cmd_qr, Command("qr"))
-    dp.message.register(cmd_find_book, Command("bsearch"))
+    dp.message.register(cmd_find_book, Command("search"))

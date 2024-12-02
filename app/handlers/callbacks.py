@@ -7,7 +7,13 @@ from app.services.food import (
     get_school_food_info,
 )
 from app.strings import Strings, Language
-from app.keyboards import create_food_menu_keyboard, create_back_to_food_menu_keyboard
+from app.services.news import get_news
+from app.keyboards import (
+    create_food_menu_keyboard,
+    create_back_to_food_menu_keyboard,
+    create_news_keyboard,
+)
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 async def process_callback_query(callback_query: types.CallbackQuery):
@@ -27,11 +33,54 @@ async def process_callback_query(callback_query: types.CallbackQuery):
                 await get_tomorrow_school_food_menu(),
                 reply_markup=create_back_to_food_menu_keyboard(),
             )
+        elif callback_query.data == "filter_news":
+            await callback_query.message.edit_text(
+                "Choose a type of news", reply_markup=create_news_keyboard()
+            )
+        elif callback_query.data == "filter_foreigners_news":
+            try:
+                news = await get_news("foreigners")
+                for item in news[:3]:
+                    date = item["date"]
+                    title = item["title"]
+                    link = item["link"]
+                    await callback_query.message.answer(
+                        f"📰 {title}\n{date}",
+                        reply_markup=InlineKeyboardMarkup(
+                            inline_keyboard=[
+                                [InlineKeyboardButton(text="Read more", url=link)]
+                            ]
+                        ),
+                    )
+            except Exception as e:
+                logging.error(f"Failed to fetch news: {e}")
+                await callback_query.message.reply(
+                    "Failed to fetch news. Please try again later."
+                )
+
+        elif callback_query.data == "filter_all_news":
+            try:
+                news = await get_news("all")
+                for item in news[:5]:
+                    date = item["date"]
+                    title = item["title"]
+                    link = item["link"]
+                    await callback_query.message.answer(
+                        f"📰 {title}\n{date}",
+                        reply_markup=InlineKeyboardMarkup(
+                            inline_keyboard=[
+                                [InlineKeyboardButton(text="Read more", url=link)]
+                            ]
+                        ),
+                    )
+            except Exception as e:
+                logging.error(f"Failed to fetch news: {e}")
+                await callback_query.message.reply(
+                    "Failed to fetch news. Please try again later."
+                )
     except Exception as e:
         logging.error(f"Error in process_callback_query: {e}")
-        await callback_query.message.answer(
-            Strings.get("unexpected_error", Language.EN)
-        )
+        await callback_query.message.reply(Strings.get("unexpected_error", Language.EN))
 
 
 def register_handlers(dp: Dispatcher):

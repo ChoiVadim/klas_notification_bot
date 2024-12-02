@@ -26,3 +26,12 @@ def create_back_to_food_menu_keyboard():
     builder.adjust(1)
 
     return builder.as_markup()
+
+
+def create_news_keyboard():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="For Foreigners", callback_data="filter_foreigners_news")
+    builder.button(text="All", callback_data="filter_all_news")
+    builder.adjust(2)
+
+    return builder.as_markup()

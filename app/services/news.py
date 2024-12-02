@@ -5,13 +5,19 @@ import time
 
 from bs4 import BeautifulSoup
 
-news_cache = []
+news_cache = {"foreigners": [], "all": []}
 last_fetch_time = 0
 
 
-async def fetch_news():
+async def fetch_news(news_type: str):
     global last_fetch_time
-    url = "https://www.kw.ac.kr/ko/life/notice.jsp?srCategoryId=10"
+    if news_type == "foreigners":
+        # news for foreigners
+        url = "https://www.kw.ac.kr/ko/life/notice.jsp?srCategoryId=10"
+    else:
+        # all news
+        url = "https://www.kw.ac.kr/ko/life/notice.jsp?srCategoryId="
+
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             beautiful_soup = BeautifulSoup(await response.text(), "html.parser")
@@ -33,19 +39,21 @@ async def fetch_news():
                         .replace("수정일", "")
                         .strip()
                     )
-                    news_cache.append({"title": title, "link": link, "date": date})
+                    news_cache[news_type].append(
+                        {"title": title, "link": link, "date": date}
+                    )
     last_fetch_time = time.time()
 
 
-async def get_news():
+async def get_news(news_type: str):
     global last_fetch_time
-    if not news_cache or time.time() - last_fetch_time > 3600:
+    if not news_cache[news_type] or time.time() - last_fetch_time > 3600:
         logging.info("Fetching news from the website")
-        await fetch_news()
-    return news_cache
+        await fetch_news(news_type)
+    return news_cache[news_type]
 
 
 if __name__ == "__main__":
     from pprint import pprint
 
-    pprint(asyncio.run(get_news()))
+    pprint(asyncio.run(get_news("all")))
