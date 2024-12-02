@@ -30,6 +30,17 @@ async def send_notification(message: str, user_id: str, urgency_level: int):
         print(f"Error sending notification: {e}")
 
 
+async def start_notification_service():
+    # Creates a task that runs independently
+    notification_task = asyncio.create_task(check_todos())
+    notification_task.set_name("notification_checker")
+
+    try:
+        await notification_task
+    except Exception as e:
+        logging.error(f"Notification task failed: {e}")
+
+
 async def check_todos():
     notification_tracker = {}
 
@@ -37,6 +48,7 @@ async def check_todos():
         users = await get_all_users()
 
         for user in users:
+            await asyncio.sleep(0)
             user_id = user.user_id
             if user_id not in notification_tracker:
                 notification_tracker[user_id] = {}
