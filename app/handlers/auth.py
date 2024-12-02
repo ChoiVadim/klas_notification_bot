@@ -6,6 +6,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 from app.utils.encryption import encrypt_password
 from app.services.kw import KwangwoonUniversityApi
+from app.services.qr import library_login, get_secret_key
 from app.database.database import delete_user, save_user, save_library_user
 from app.strings import Strings, Language
 
@@ -118,10 +119,18 @@ async def process_library_phone_number(message: types.Message, state: FSMContext
 
     try:
         encrypted_password = encrypt_password(password)
+        secret = await get_secret_key("0" + username)
+        auth_key = await library_login(username, phone_number, password, secret)
+        if not auth_key:
+            await message.answer("Login failed, check your credentials and try again.")
+            return
+
         if await save_library_user(user_id, username, encrypted_password, phone_number):
             await message.answer("Registration successful")
         else:
             await message.answer("Failed to save credentials")
+    except Exception as e:
+        logging.error(f"Error in process_library_phone_number: {e}")
     finally:
         await message.delete()
         await state.clear()

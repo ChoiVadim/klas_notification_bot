@@ -11,6 +11,5 @@ aiosqlite
 redis
 pydantic-settings
 pydantic
-Pillow
 qrcode
 

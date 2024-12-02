@@ -19,6 +19,8 @@ async def fetch_books(query: str):
     }
     url = "https://kupis.kw.ac.kr/eds/brief/integrationResult"
 
+    list_of_books = []
+
     async with aiohttp.ClientSession() as session:
         async with session.get(url, params=params) as response:
             beautiful_soup = BeautifulSoup(await response.text(), "html.parser")
@@ -31,7 +33,14 @@ async def fetch_books(query: str):
                     isInLibrary = item.find("div", {"class": "holding"}).text.strip()
                     if isInLibrary:
                         info = item.find_all("dd", {"class": "info"})[2].text
-                        print(title, info)
+                        list_of_books.append((title, info))
+
+    return list_of_books
+
+
+async def search_book(query: str):
+    list_of_books = await fetch_books(query)
+    return list_of_books
 
 
 if __name__ == "__main__":

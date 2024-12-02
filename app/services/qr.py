@@ -42,13 +42,11 @@ async def get_secret_key(real_id: str) -> str:
             return parse_xml_response(response_data, "sec_key")
 
 
-async def login(
-    real_id: str, std_number: str, phone: str, password: str, secret: str
-) -> str:
+async def library_login(std_number: str, phone: str, password: str, secret: str) -> str:
     url = f"{BASE_URL}/mobile/MA/xml_login_and.php"
     encrypted_password = encrypt(password, secret)
     data = {
-        "real_id": encode(real_id),
+        "real_id": encode("0" + std_number),
         "rid": encode(std_number),
         "device_gb": "A",
         "tel_no": phone,
@@ -58,10 +56,16 @@ async def login(
     async with ClientSession() as session:
         async with session.post(url, data=data) as response:
             if response.status != 200:
-                raise Exception(f"Login failed: {response.status}")
+                logging.error(f"Failed to get auth key: {response.status}")
+                return None
 
             response_data = await response.text(encoding="iso-8859-1")
-            return parse_xml_response(response_data, "auth_key")
+            auth_key = parse_xml_response(response_data, "auth_key")
+            if not auth_key:
+                logging.error(f"Failed to get auth key: {response_data}")
+                return None
+
+            return auth_key
 
 
 async def get_qr_code(real_id: str, auth_key: str) -> dict:
@@ -113,7 +117,7 @@ def parse_xml_response(xml_string: str, tag: str) -> str:
 
 async def generate_qr_code(qr_data: str, path: str):
     if "qr_code" not in qr_data or len(qr_data["qr_code"]) < 5:
-        print("Error: Invalid QR code data.")
+        logging.error("Error: Invalid QR code data.")
         return
 
     # Extract data for UI
@@ -149,12 +153,12 @@ async def get_qr(std_number: str, phone_number: str, password: str):
     real_id = "0" + std_number
     try:
         secret = await get_secret_key(real_id)
-        auth_key = await login(real_id, std_number, phone_number, password, secret)
+        auth_key = await library_login(std_number, phone_number, password, secret)
         qr_data = await get_qr_code(real_id, auth_key)
         qr_path = await generate_qr_code(qr_data, path="images/qr.png")
         return qr_path
     except Exception as e:
-        logging.error(f"Error: {e}")
+        logging.error(f"Error in get_qr: {e}")
         return None
 
 
@@ -166,11 +170,11 @@ async def main():
 
     try:
         secret = await get_secret_key(real_id)
-        auth_key = await login(real_id, std_number, phone, password, secret)
+        auth_key = await library_login(real_id, std_number, phone, password, secret)
         qr_data = await get_qr_code(real_id, auth_key)
         generate_qr_code(qr_data, path="qr.png")
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error(f"Error in main: {e}")
 
 
 if __name__ == "__main__":
