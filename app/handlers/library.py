@@ -16,7 +16,7 @@ async def cmd_qr(message: types.Message):
     try:
         user = await get_library_user(str(message.from_user.id))
         if not user:
-            await message.answer(Strings.get("user_not_found", Language.EN))
+            await message.answer(Strings.get("library_user_not_found", Language.EN))
             return
 
         qr_code_path = await get_qr(
@@ -51,4 +51,4 @@ async def cmd_find_book(message: types.Message):
 
 def register_handlers(dp: Dispatcher):
     dp.message.register(cmd_qr, Command("qr"))
-    dp.message.register(cmd_find_book, Command("search"))
+    dp.message.register(cmd_find_book, Command("bsearch"))
