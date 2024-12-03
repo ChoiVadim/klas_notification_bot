@@ -34,6 +34,8 @@ async def fetch_books(query: str):
                 )
                 if table_scroll_box:
                     books = table_scroll_box.find_all("li")
+                    if len(books) == 0:
+                        return []
                     if len(books) > 4:
                         books = books[:4]
                     else:
@@ -46,6 +48,7 @@ async def fetch_books(query: str):
                             "div", {"class": "holding"}
                         ).text.strip()
                         info_about_book = []
+                        image_url = ""
 
                         if holding_elem:
                             title = title_elem.find("a").text.strip()
@@ -77,16 +80,17 @@ async def fetch_books(query: str):
                                         if elem.find("th").text.strip() == "ISBN":
                                             isbn_td = elem.find("td")
                                             if isbn_td:
-                                                # Split the text by <br> and take the first part
-                                                isbn = isbn_td.text.split("<br>")[
-                                                    0
-                                                ].strip()
+                                                isbn = isbn_td.find_all(
+                                                    string=True, recursive=False
+                                                )[0].strip()
                                                 break
 
                                     final_isbn = ""
                                     for i in isbn:
                                         if i.isdigit():
                                             final_isbn += i
+                                        if i == "(" or i == " ":
+                                            break
 
                                     # Get location, status, and return date from list of books
                                     list_of_available_books = (
@@ -143,6 +147,8 @@ async def fetch_books(query: str):
                                                     "largeUrl",
                                                     image_data.get("smallUrl", None),
                                                 )
+                                            else:
+                                                image_url = ""
 
                                     list_of_books.append(
                                         (
@@ -169,4 +175,4 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)
 
-    pprint(asyncio.run(fetch_books("서울대 한국어")))
+    pprint(asyncio.run(fetch_books("Korean")))

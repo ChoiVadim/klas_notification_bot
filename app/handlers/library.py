@@ -49,6 +49,12 @@ async def cmd_find_book(message: types.Message):
             return
 
         list_of_books = await search_book(query)
+
+        if not list_of_books:
+            await message.answer(
+                "🤔 No books found. Check your spelling and try again!"
+            )
+            return
         for book in list_of_books:
             message_text = f"📚 {book[0]}\n\n"
             for info in book[2]:
@@ -60,7 +66,11 @@ async def cmd_find_book(message: types.Message):
                 else:
                     message_text += "🔄 Available\n"
                 message_text += "\n"
-            await message.answer_photo(book[1], caption=message_text)
+            if book[1]:
+                await message.answer_photo(book[1], caption=message_text)
+            else:
+                await message.answer(message_text)
+
     except Exception as e:
         logging.error(f"Error in cmd_find_book: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))
