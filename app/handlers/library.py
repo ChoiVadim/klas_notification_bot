@@ -50,8 +50,9 @@ async def cmd_find_book(message: types.Message):
 
         list_of_books = await search_book(query)
         for book in list_of_books:
-            message_text = f"📚 Title: {book[0]}\n\n🔍 Info: {book[1]}"
-            await message.answer(message_text)
+            # (title, image_url, location, status, return_date)
+            message_text = f"📚 {book[0]}\n📍 Location: {book[2]}\n🔄 Status: {book[3]} till {book[4]}"
+            await message.answer_photo(book[1], caption=message_text)
     except Exception as e:
         logging.error(f"Error in cmd_find_book: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))
