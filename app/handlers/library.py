@@ -1,5 +1,6 @@
 import os
 import logging
+import asyncio
 
 from aiogram import Dispatcher, types
 from aiogram.filters import Command
@@ -24,7 +25,10 @@ async def cmd_qr(message: types.Message):
         )
 
         try:
-            await message.reply_photo(FSInputFile(qr_code_path))
+            qr_photo = await message.answer_photo(FSInputFile(qr_code_path))
+            await message.delete()
+            await asyncio.sleep(30)
+            await qr_photo.delete()
         except Exception as e:
             logging.error(f"Error in reply_photo: {e}")
             await message.answer(Strings.get("unexpected_error", Language.EN))
@@ -40,6 +44,10 @@ async def cmd_qr(message: types.Message):
 async def cmd_find_book(message: types.Message):
     try:
         query = message.text.split("/search")[1]
+        if not query:
+            await message.answer("Please enter a book name after /search command.")
+            return
+
         list_of_books = await search_book(query)
         for book in list_of_books:
             message_text = f"📚 Title: {book[0]}\n\n🔍 Info: {book[1]}"

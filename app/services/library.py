@@ -34,12 +34,19 @@ async def fetch_books(query: str):
                 if table_scroll_box:
                     for item in table_scroll_box.find_all("li"):
                         title = item.find("dd", {"class": "title"}).find("a").text
+                        image_link = item.find("dd", {"class": "book"}).find("img")[
+                            "src"
+                        ]
+
                         isInLibrary = item.find(
                             "div", {"class": "holding"}
                         ).text.strip()
+                        print(isInLibrary)
+
                         if isInLibrary:
-                            info = item.find_all("dd", {"class": "info"})[2].text
-                            list_of_books.append((title, info))
+                            location = isInLibrary.find("td", class_="location").text
+                            list_of_books.append((title, image_link, location))
+                            
         except aiohttp.ClientError as e:
             logging.error(f"Error fetching books: {e}")
             return []
