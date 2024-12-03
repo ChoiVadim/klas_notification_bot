@@ -45,9 +45,7 @@ async def fetch_books(query: str):
                         holding_elem = item.find(
                             "div", {"class": "holding"}
                         ).text.strip()
-                        location = ""
-                        status = "Available"
-                        return_date = "X"
+                        info_about_book = []
 
                         if holding_elem:
                             title = title_elem.find("a").text.strip()
@@ -77,28 +75,55 @@ async def fetch_books(query: str):
                                     isbn = ""
                                     for elem in table_elem:
                                         if elem.find("th").text.strip() == "ISBN":
-                                            isbn = elem.find("td").text.strip()
-                                            break
+                                            isbn_td = elem.find("td")
+                                            if isbn_td:
+                                                # Split the text by <br> and take the first part
+                                                isbn = isbn_td.text.split("<br>")[
+                                                    0
+                                                ].strip()
+                                                break
 
                                     final_isbn = ""
                                     for i in isbn:
                                         if i.isdigit():
                                             final_isbn += i
 
-                                    location = detail_soup.find("td", class_="location")
-                                    status = detail_soup.find(
-                                        "span", class_="status ing"
+                                    # Get location, status, and return date from list of books
+                                    list_of_available_books = (
+                                        detail_soup.find("div", {"class": "listTable"})
+                                        .find("table")
+                                        .find("tbody")
+                                        .find_all("tr")
                                     )
-                                    return_date = detail_soup.find(
-                                        "td", class_="returnDate"
-                                    )
+                                    for book in list_of_available_books:
+                                        location = book.find("td", class_="location")
+                                        book_shell_number = book.find(
+                                            "td", class_="callNum"
+                                        )
+                                        status = book.find("span", class_="status ing")
+                                        return_date = detail_soup.find(
+                                            "td", class_="returnDate"
+                                        )
 
-                                    if location:
-                                        location = location.text.strip()
-                                    if status:
-                                        status = status.text.strip()
-                                    if return_date:
-                                        return_date = return_date.text.strip()
+                                        if location:
+                                            location = location.text.strip()
+                                        if status:
+                                            status = status.text.strip()
+                                        if return_date:
+                                            return_date = return_date.text.strip()
+                                        if book_shell_number:
+                                            book_shell_number = (
+                                                book_shell_number.text.strip()
+                                            )
+
+                                        info_about_book.append(
+                                            {
+                                                "location": location,
+                                                "status": status,
+                                                "return_date": return_date,
+                                                "book_shell_number": book_shell_number,
+                                            }
+                                        )
 
                                     # Get thumbnail
                                     thumbnail_data = {
@@ -113,18 +138,17 @@ async def fetch_books(query: str):
                                     ) as thumb_response:
                                         if thumb_response.status == 200:
                                             image_data = await thumb_response.json()
-                                            image_url = image_data.get(
-                                                "largeUrl",
-                                                image_data.get("smallUrl", None),
-                                            )
+                                            if image_data:
+                                                image_url = image_data.get(
+                                                    "largeUrl",
+                                                    image_data.get("smallUrl", None),
+                                                )
 
                                     list_of_books.append(
                                         (
                                             title,
                                             image_url,
-                                            location,
-                                            status,
-                                            return_date,
+                                            info_about_book,
                                         )
                                     )
             else:
@@ -145,4 +169,4 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)
 
-    pprint(asyncio.run(fetch_books("시사한국어")))
+    pprint(asyncio.run(fetch_books("서울대 한국어")))

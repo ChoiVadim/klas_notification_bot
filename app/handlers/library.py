@@ -50,8 +50,16 @@ async def cmd_find_book(message: types.Message):
 
         list_of_books = await search_book(query)
         for book in list_of_books:
-            # (title, image_url, location, status, return_date)
-            message_text = f"📚 {book[0]}\n📍 Location: {book[2]}\n🔄 Status: {book[3]} till {book[4]}"
+            message_text = f"📚 {book[0]}\n\n"
+            for info in book[2]:
+                message_text += (
+                    f"📍 {info['location']}\n📦 {info['book_shell_number']}\n"
+                )
+                if info["status"]:
+                    message_text += f"🔄 {info['status']} {info['return_date']}\n"
+                else:
+                    message_text += "🔄 Available\n"
+                message_text += "\n"
             await message.answer_photo(book[1], caption=message_text)
     except Exception as e:
         logging.error(f"Error in cmd_find_book: {e}")
