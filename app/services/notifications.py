@@ -45,105 +45,117 @@ async def check_todos():
     notification_tracker = {}
 
     while True:
-        users = await get_all_users()
+        try:
+            users = await get_all_users()
 
-        for user in users:
-            await asyncio.sleep(0)
-            user_id = user.user_id
-            if user_id not in notification_tracker:
-                notification_tracker[user_id] = {}
+            for user in users:
+                await asyncio.sleep(0)
+                user_id = user.user_id
+                if user_id not in notification_tracker:
+                    notification_tracker[user_id] = {}
 
-            async with KwangwoonUniversityApi() as kw:
-                await kw.login(user.username, decrypt_password(user.encrypted_password))
-                todo_list = await kw.get_todo_list()
+                async with KwangwoonUniversityApi() as kw:
+                    await kw.login(
+                        user.username, decrypt_password(user.encrypted_password)
+                    )
+                    todo_list = await kw.get_todo_list()
 
-                threshold_messages = {
-                    threshold: "" for threshold in TIME_THRESHOLDS.keys()
-                }
-
-                if not todo_list:
-                    logging.info(f"No todo list found for user {user_id}")
-                    continue
-
-                for subject in todo_list:
-                    subject_name = subject.get("name", "Unknown Subject")
-
-                    # Assignment type emojis
-                    type_emojis = {
-                        "lectures": "📚",
-                        "homeworks": "📝",
-                        "quizzes": "🧠",
-                        "team_projects": "🚧",
+                    threshold_messages = {
+                        threshold: "" for threshold in TIME_THRESHOLDS.keys()
                     }
 
-                    # Check each type of assignment
-                    for assignment_type, emoji in type_emojis.items():
-                        assignments = subject["todo"].get(assignment_type, [])
-                        if assignments:
-                            for assignment in assignments:
-                                # Create unique assignment identifier
-                                assignment_id = f"{subject_name}_{assignment_type}_{assignment.get('title', '')}"
+                    if not todo_list:
+                        logging.info(f"No todo list found for user {user_id}")
+                        continue
 
-                                # Initialize assignment tracker if not exists
-                                if assignment_id not in notification_tracker[user_id]:
-                                    notification_tracker[user_id][assignment_id] = set()
+                    for subject in todo_list:
+                        subject_name = subject.get("name", "Unknown Subject")
 
-                                left_time = assignment["left_time"].seconds
-                                days_left = assignment["left_time"].days
-                                hours_left = left_time // 3600
-                                title = assignment["title"]
+                        # Assignment type emojis
+                        type_emojis = {
+                            "lectures": "📚",
+                            "homeworks": "📝",
+                            "quizzes": "🧠",
+                            "team_projects": "🚧",
+                        }
 
-                                if abs(days_left) > 0:
-                                    continue
+                        # Check each type of assignment
+                        for assignment_type, emoji in type_emojis.items():
+                            assignments = subject["todo"].get(assignment_type, [])
+                            if assignments:
+                                for assignment in assignments:
+                                    # Create unique assignment identifier
+                                    assignment_id = f"{subject_name}_{assignment_type}_{assignment.get('title', '')}"
 
-                                for threshold in TIME_THRESHOLDS.keys():
+                                    # Initialize assignment tracker if not exists
                                     if (
-                                        hours_left <= threshold
-                                        and hours_left
-                                        > max(
-                                            [
-                                                t
-                                                for t in TIME_THRESHOLDS.keys()
-                                                if t < threshold
-                                            ],
-                                            default=0,
-                                        )
-                                        and threshold
-                                        not in notification_tracker[user_id][
-                                            assignment_id
-                                        ]
-                                    ):  # Check if notification wasn't sent
-
-                                        threshold_messages[threshold] += (
-                                            f"{emoji} {subject_name}\n"
-                                            f"Type: {assignment_type.title()}\n"
-                                            f"Title: {title}\n"
-                                            f"Time left: {hours_left} hour{'s' if hours_left != 1 else ''}"
-                                            f" and {left_time % 3600 // 60} minutes\n\n"
-                                        )
-                                        # Mark this threshold as notified for this assignment
+                                        assignment_id
+                                        not in notification_tracker[user_id]
+                                    ):
                                         notification_tracker[user_id][
                                             assignment_id
-                                        ].add(threshold)
+                                        ] = set()
 
-                # Send notifications for each threshold that has messages
-                for threshold, message in threshold_messages.items():
-                    if message:
-                        await send_notification(message, user_id, threshold)
-                        await asyncio.sleep(1)
+                                    left_time = assignment["left_time"].seconds
+                                    days_left = assignment["left_time"].days
+                                    hours_left = left_time // 3600
+                                    title = assignment["title"]
 
-            # Clean up old assignments from tracker
-            current_assignments = {
-                f"{subject['name']}_{type_}_{assignment.get('title', '')}"
-                for subject in todo_list
-                for type_ in type_emojis.keys()
-                for assignment in subject["todo"].get(type_, [])
-            }
+                                    if abs(days_left) > 0:
+                                        continue
 
-            notification_tracker[user_id] = {
-                assignment_id: thresholds
-                for assignment_id, thresholds in notification_tracker[user_id].items()
-                if assignment_id in current_assignments
-            }
+                                    for threshold in TIME_THRESHOLDS.keys():
+                                        if (
+                                            hours_left <= threshold
+                                            and hours_left
+                                            > max(
+                                                [
+                                                    t
+                                                    for t in TIME_THRESHOLDS.keys()
+                                                    if t < threshold
+                                                ],
+                                                default=0,
+                                            )
+                                            and threshold
+                                            not in notification_tracker[user_id][
+                                                assignment_id
+                                            ]
+                                        ):  # Check if notification wasn't sent
 
-        await asyncio.sleep(settings.NOTIFICATION_CHECK_INTERVAL)
+                                            threshold_messages[threshold] += (
+                                                f"{emoji} {subject_name}\n"
+                                                f"Type: {assignment_type.title()}\n"
+                                                f"Title: {title}\n"
+                                                f"Time left: {hours_left} hour{'s' if hours_left != 1 else ''}"
+                                                f" and {left_time % 3600 // 60} minutes\n\n"
+                                            )
+                                            # Mark this threshold as notified for this assignment
+                                            notification_tracker[user_id][
+                                                assignment_id
+                                            ].add(threshold)
+
+                    # Send notifications for each threshold that has messages
+                    for threshold, message in threshold_messages.items():
+                        if message:
+                            await send_notification(message, user_id, threshold)
+                            await asyncio.sleep(1)
+
+                # Clean up old assignments from tracker
+                current_assignments = {
+                    f"{subject['name']}_{type_}_{assignment.get('title', '')}"
+                    for subject in todo_list
+                    for type_ in type_emojis.keys()
+                    for assignment in subject["todo"].get(type_, [])
+                }
+
+                notification_tracker[user_id] = {
+                    assignment_id: thresholds
+                    for assignment_id, thresholds in notification_tracker[
+                        user_id
+                    ].items()
+                    if assignment_id in current_assignments
+                }
+
+            await asyncio.sleep(settings.NOTIFICATION_CHECK_INTERVAL)
+        except Exception as e:
+            logging.error(f"Error in check_todos: {e}")

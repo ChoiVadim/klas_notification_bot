@@ -36,9 +36,6 @@ async def cmd_qr(message: types.Message):
     except Exception as e:
         logging.error(f"Error in cmd_qr: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))
-    finally:
-        if os.path.exists(qr_code_path):
-            os.remove(qr_code_path)
 
 
 async def cmd_find_book(message: types.Message):
