@@ -14,6 +14,7 @@ from app.strings import Strings, Language
 
 async def cmd_info(message: types.Message):
     try:
+        logging.info(f"User {message.from_user.id} used /info command")
         # Check if user is registered
         user = await get_user(str(message.from_user.id))
         if not user:

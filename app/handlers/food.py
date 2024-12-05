@@ -13,6 +13,7 @@ async def show_school_food_menu(message: types.Message):
             await get_today_school_food_menu(),
             reply_markup=create_food_menu_keyboard(),
         )
+        logging.info(f"User {message.from_user.id} used /menu command")
     except Exception as e:
         logging.error(f"Error in show_school_food_menu: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))

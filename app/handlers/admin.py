@@ -4,6 +4,7 @@ from aiogram.filters import Command
 
 from app.config import settings
 from app.database.database import get_all_users
+from app.strings import Strings, Language
 
 
 async def cmd_notify(message: types.Message):
@@ -41,6 +42,7 @@ async def cmd_notify(message: types.Message):
 
     except Exception as e:
         logging.error(f"Failed to send notification: {e}")
+        await message.answer(Strings.get("unexpected_error", Language.EN))
 
 
 def register_handlers(dp: Dispatcher):

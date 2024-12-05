@@ -25,15 +25,14 @@ async def main():
         logging.error(f"Error in main loop: {e}")
     finally:
         # Cleanup if needed
+        logging.info("Closing bot session")
         await bot.session.close()
 
 
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        filename="log.txt",
-        filemode="a",
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         encoding="UTF-8",
     )
     asyncio.run(main())

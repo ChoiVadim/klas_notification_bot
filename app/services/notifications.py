@@ -46,6 +46,7 @@ async def check_todos():
 
     while True:
         try:
+            logging.info("Starting sending notifications about assignments!")
             users = await get_all_users()
 
             for user in users:
@@ -65,7 +66,7 @@ async def check_todos():
                     }
 
                     if not todo_list:
-                        logging.info(f"No todo list found for user {user_id}")
+                        logging.error(f"No todo list found for user {user_id}")
                         continue
 
                     for subject in todo_list:
@@ -156,6 +157,9 @@ async def check_todos():
                     if assignment_id in current_assignments
                 }
 
+            logging.info(
+                f"All notifications sent successfully, waiting for {settings.NOTIFICATION_CHECK_INTERVAL} seconds"
+            )
             await asyncio.sleep(settings.NOTIFICATION_CHECK_INTERVAL)
         except Exception as e:
             logging.error(f"Error in check_todos: {e}")

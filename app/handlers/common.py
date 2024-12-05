@@ -25,6 +25,7 @@ async def cmd_start(message: types.Message):
             photo=photo,
             caption=caption,
         )
+        logging.info(f"User {message.from_user.id} started the bot!")
     except Exception as e:
         logging.error(f"Error in cmd_start: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))
@@ -40,6 +41,7 @@ async def cmd_donate(message: types.Message):
             payload="donate",
             provider_token="",
         )
+        logging.info(f"User {message.from_user.id} started donation")
     except Exception as e:
         logging.error(f"Error in cmd_donate: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))
@@ -102,6 +104,8 @@ async def other_message(message: types.Message):
 
         else:
             await message.reply(await generate_response(message.text))
+            logging.info(f"User {message.from_user.id} asked a question (LLM)")
+
     except Exception as e:
         logging.error(f"Error in other_message: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))

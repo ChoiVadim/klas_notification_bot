@@ -107,7 +107,7 @@ class KwangwoonUniversityApi:
                 if login_response.status == 200:
                     response_data = await login_response.json()
                     if response_data.get("errorCount", 0) == 0:
-                        logging.info("Login successful.")
+                        logging.debug("Login successful.")
                         self.cookies = {
                             cookie.key: cookie.value
                             for cookie in self.session.cookie_jar
@@ -146,7 +146,7 @@ class KwangwoonUniversityApi:
         ) as response:
             if response.status == 200:
                 response_data = await response.json()
-                logging.info("Data about subjects retrieved successfully.")
+                logging.debug("Data about subjects retrieved successfully.")
                 return response_data[0]
             else:
                 logging.error(

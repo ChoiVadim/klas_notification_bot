@@ -27,10 +27,15 @@ Send me any feedback or suggestions to @tsoivadim 💬
 And i will try to improve this bot as soon as possible!
 
 Made with ❤️ by @tsoivadim""",
-            "enter_username": "🔄 Please enter your Kwangwoon University username:",
-            "enter_password": "🔑 Please enter your password:",
+            "enter_username": "🎓 Please enter your student ID 🎓",
+            "enter_password": "🔑 Please enter your KLAS password 🔑",
+            "enter_phone_number": "📱 Please enter your phone number 📱",
+            "library_enter_username": "🔄 Please enter your library account username 🔄",
+            "library_enter_password": "🔑 Please enter your library account password 🔑",
             "invalid_credentials": "🚫 Invalid credentials. Please check your username and password and try again with /register",
-            "registration_successful": "🎉 Registration successful! You will now receive notifications.",
+            "library_login_failed": "🚫 Login failed. Please check your username, password and phone number and try again with /lregister",
+            "registration_successful": "🎉 Registration successful! You will now receive notifications. And you can use /show and /info commands",
+            "library_registration_successful": "🎉 Library registration successful! Now you can use library features like /qr",
             "registration_failed": "🚫 Registration failed. Please check your credentials and try again with /register",
             "failed_to_save_credentials": "🚨 Failed to save your credentials. Please try again later.",
             "unregistered": "🚫 You have been unregistered from the bot!",

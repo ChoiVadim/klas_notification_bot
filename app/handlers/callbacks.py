@@ -39,6 +39,7 @@ async def process_callback_query(callback_query: types.CallbackQuery):
             )
         elif callback_query.data == "filter_foreigners_news":
             try:
+                await callback_query.message.delete()
                 news = await get_news("foreigners")
                 for item in news[:3]:
                     date = item["date"]
@@ -52,6 +53,7 @@ async def process_callback_query(callback_query: types.CallbackQuery):
                             ]
                         ),
                     )
+
             except Exception as e:
                 logging.error(f"Failed to fetch news: {e}")
                 await callback_query.message.reply(
@@ -60,6 +62,7 @@ async def process_callback_query(callback_query: types.CallbackQuery):
 
         elif callback_query.data == "filter_all_news":
             try:
+                await callback_query.message.delete()
                 news = await get_news("all")
                 for item in news[:5]:
                     date = item["date"]

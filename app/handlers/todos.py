@@ -10,6 +10,7 @@ from app.strings import Strings, Language
 
 async def show_all_assignments(message: types.Message):
     try:
+        logging.info(f"User {message.from_user.id} used /show command")
         user_id = str(message.from_user.id)
         user = await get_user(user_id)
 

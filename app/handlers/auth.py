@@ -26,10 +26,12 @@ class LibraryRegistrationStates(StatesGroup):
 async def cmd_register(message: types.Message, state: FSMContext):
     try:
         await state.set_state(RegistrationStates.waiting_for_username)
-        await message.reply(Strings.get("enter_username", Language.EN))
+        await message.answer(Strings.get("enter_username", Language.EN))
+        await message.delete()
     except Exception as e:
         logging.error(f"Error in cmd_register: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))
+        await state.clear()
 
 
 async def process_username(message: types.Message, state: FSMContext):
@@ -41,6 +43,7 @@ async def process_username(message: types.Message, state: FSMContext):
     except Exception as e:
         logging.error(f"Error in process_username: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))
+        await state.clear()
 
 
 async def process_password(message: types.Message, state: FSMContext):
@@ -66,6 +69,7 @@ async def process_password(message: types.Message, state: FSMContext):
                 await message.answer(
                     Strings.get("registration_successful", Language.EN)
                 )
+                logging.info(f"User {user_id} registered successfully")
             else:
                 await message.answer(
                     Strings.get("failed_to_save_credentials", Language.EN)
@@ -85,54 +89,70 @@ async def cmd_unregister(message: types.Message):
     try:
         await delete_user(str(message.from_user.id))
         await message.answer(Strings.get("unregistered", Language.EN))
+        logging.info(f"User {message.from_user.id} unregistered")
+        await message.delete()
     except Exception as e:
         logging.error(f"Error in cmd_unregister: {e}")
         await message.answer(Strings.get("unexpected_error", Language.EN))
 
 
 async def cmd_library_register(message: types.Message, state: FSMContext):
-    await state.set_state(LibraryRegistrationStates.waiting_for_username)
-    await message.reply("👉 Enter your username 👈")
-    await message.delete()
+    try:
+        await state.set_state(LibraryRegistrationStates.waiting_for_username)
+        await message.answer(Strings.get("library_enter_username", Language.EN))
+        await message.delete()
+    except Exception as e:
+        logging.error(f"Error in cmd_library_register: {e}")
+        await message.answer(Strings.get("unexpected_error", Language.EN))
 
 
 async def process_library_username(message: types.Message, state: FSMContext):
-    await state.update_data(username=message.text)
-    await state.set_state(LibraryRegistrationStates.waiting_for_password)
-    await message.answer("🔑 Enter your password 🔑")
-    await message.delete()
+    try:
+        await state.update_data(username=message.text)
+        await state.set_state(LibraryRegistrationStates.waiting_for_password)
+        await message.answer(Strings.get("library_enter_password", Language.EN))
+        await message.delete()
+    except Exception as e:
+        logging.error(f"Error in process_library_username: {e}")
+        await message.answer(Strings.get("unexpected_error", Language.EN))
 
 
 async def process_library_password(message: types.Message, state: FSMContext):
-    await state.update_data(password=message.text)
-    await state.set_state(LibraryRegistrationStates.waiting_for_phone_number)
-    await message.answer("📱 Enter your phone number 📱")
-    await message.delete()
+    try:
+        await state.update_data(password=message.text)
+        await state.set_state(LibraryRegistrationStates.waiting_for_phone_number)
+        await message.answer(Strings.get("enter_phone_number", Language.EN))
+        await message.delete()
+    except Exception as e:
+        logging.error(f"Error in process_library_password: {e}")
+        await message.answer(Strings.get("unexpected_error", Language.EN))
 
 
 async def process_library_phone_number(message: types.Message, state: FSMContext):
-    user_data = await state.get_data()
-    username = user_data["username"]
-    password = user_data["password"]
-    phone_number = message.text
-    user_id = str(message.from_user.id)
-
     try:
+        user_data = await state.get_data()
+        username = user_data["username"]
+        password = user_data["password"]
+        phone_number = message.text
+        user_id = str(message.from_user.id)
+
         encrypted_password = encrypt_password(password)
         secret = await get_secret_key("0" + username)
         auth_key = await library_login(username, phone_number, password, secret)
         if not auth_key:
-            await message.answer(
-                "🚫 Login failed, check your credentials and try again."
-            )
+            await message.answer(Strings.get("library_login_failed", Language.EN))
             return
 
         if await save_library_user(user_id, username, encrypted_password, phone_number):
-            await message.answer("🎉 Registration successful")
+            await message.answer(
+                Strings.get("library_registration_successful", Language.EN)
+            )
+            logging.info(f"User {user_id} registered in library successfully")
         else:
-            await message.answer("🚫 Failed to save credentials")
+            await message.answer(Strings.get("failed_to_save_credentials", Language.EN))
     except Exception as e:
         logging.error(f"Error in process_library_phone_number: {e}")
+        await message.answer(Strings.get("unexpected_error", Language.EN))
     finally:
         await message.delete()
         await state.clear()

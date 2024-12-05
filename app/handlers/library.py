@@ -26,6 +26,7 @@ async def cmd_qr(message: types.Message):
 
         try:
             qr_photo = await message.answer_photo(FSInputFile(qr_code_path))
+            logging.info(f"User {message.from_user.id} used /qr command")
             await message.delete()
             await asyncio.sleep(30)
             await qr_photo.delete()
@@ -40,6 +41,7 @@ async def cmd_qr(message: types.Message):
 
 async def cmd_find_book(message: types.Message):
     try:
+        logging.info(f"User {message.from_user.id} used /search command")
         query = message.text.split("/search")[1]
         if not query:
             await message.answer("Please enter a book name after /search command.")
