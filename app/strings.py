@@ -45,6 +45,11 @@ Made with ❤️ by @tsoivadim""",
             "failed_to_fetch_student_info": "🚨 Failed to fetch student information. Please try again later.",
             "unexpected_error": "🚨 Oops, something went wrong. Please try again later!",
             "callback_error": "Please dont spam me!",
+            "donate_title": "Buy me a coffee!😁",
+            "donate_description": "Thank you for using my bot!",
+            "refund_error": "Please reply to a payment message to request a refund!",
+            "refund_success": "✅ Refund has been processed successfully.",
+            "refund_error_message": "❌ Refund request was not successful. Please try again later.",
             "library_user_not_found": "🚫 You need to login to library first, please use /lregister command",
             "student_info": """ UID: {uid} 
 👨‍🎓 Name: {name} 

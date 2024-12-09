@@ -10,14 +10,13 @@ from app.services.llm import generate_response
 
 async def cmd_start(message: types.Message):
     # Detect user's language from message.from_user.language_code
-    # user_lang = (
-    #     Language(message.from_user.language_code)
-    #     if message.from_user.language_code in [l.value for l in Language]
-    #     else Language.EN
-    # )
+    user_lang = (
+        Language(message.from_user.language_code)
+        if message.from_user.language_code in [l.value for l in Language]
+        else Language.EN
+    )
 
     try:
-        user_lang = Language.EN
 
         caption = Strings.get("welcome", user_lang, name=message.from_user.first_name)
         photo = FSInputFile("images/logo.jpg")
@@ -33,9 +32,14 @@ async def cmd_start(message: types.Message):
 
 async def cmd_donate(message: types.Message):
     try:
+        user_lang = (
+            Language(message.from_user.language_code)
+            if message.from_user.language_code in [l.value for l in Language]
+            else Language.EN
+        )
         await message.reply_invoice(
-            title="Buy me a coffee!😁",
-            description="Thank you for using my bot!",
+            title=Strings.get("donate_title", user_lang),
+            description=Strings.get("donate_description", user_lang),
             prices=[types.LabeledPrice(label="Donation", amount=1)],
             currency="XTR",
             payload="donate",
@@ -44,19 +48,22 @@ async def cmd_donate(message: types.Message):
         logging.info(f"User {message.from_user.id} started donation")
     except Exception as e:
         logging.error(f"Error in cmd_donate: {e}")
-        await message.answer(Strings.get("unexpected_error", Language.EN))
+        await message.answer(Strings.get("unexpected_error", user_lang))
 
 
 async def cmd_refund(message: types.Message):
     try:
+        user_lang = (
+            Language(message.from_user.language_code)
+            if message.from_user.language_code in [l.value for l in Language]
+            else Language.EN
+        )
         # Check if the message is a reply to a payment message
         if (
             not message.reply_to_message
             or not message.reply_to_message.successful_payment
         ):
-            await message.answer(
-                "Please reply to a payment message to request a refund!"
-            )
+            await message.answer(Strings.get("refund_error", user_lang))
             return
 
         payment = message.reply_to_message.successful_payment
@@ -68,15 +75,13 @@ async def cmd_refund(message: types.Message):
         )
 
         if result:
-            await message.answer("✅ Refund has been processed successfully.")
+            await message.answer(Strings.get("refund_success", user_lang))
         else:
-            await message.answer(
-                "❌ Refund request was not successful. Please try again later."
-            )
+            await message.answer(Strings.get("refund_error", user_lang))
 
     except Exception as e:
         logging.error(f"Error in cmd_refund: {e}")
-        await message.answer(Strings.get("unexpected_error", Language.EN))
+        await message.answer(Strings.get("unexpected_error", user_lang))
 
 
 async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery):
@@ -89,19 +94,55 @@ async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery)
 # Process all other messages using LLM
 async def other_message(message: types.Message):
     try:
+        user_lang = (
+            Language(message.from_user.language_code)
+            if message.from_user.language_code in [l.value for l in Language]
+            else Language.EN
+        )
         if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
-            await message.answer("Thank you for your donation!")
+            await message.answer(Strings.get("refund_success", user_lang))
 
         elif message.content_type == types.ContentType.REFUNDED_PAYMENT:
-            await message.answer(
-                "Your payment has been refunded. Please contact the support if you have any questions."
-            )
+            await message.answer(Strings.get("refund_success", user_lang))
 
+        elif message.content_type == types.ContentType.PHOTO:
+            await message.reply(
+                "Photo is not available in the chat. Please use the command from the bot menu."
+            )
+        elif message.content_type == types.ContentType.DOCUMENT:
+            await message.reply(
+                "Document is not available in the chat. Please use the command from the bot menu."
+            )
+        elif message.content_type == types.ContentType.AUDIO:
+            await message.reply(
+                "Audio is not available in the chat. Please use the command from the bot menu."
+            )
+        elif (
+            message.content_type == types.ContentType.VIDEO
+            or message.content_type == types.ContentType.VIDEO_NOTE
+        ):
+            await message.reply(
+                "Video is not available in the chat. Please use the command from the bot menu."
+            )
+        elif message.content_type == types.ContentType.VOICE:
+            await message.reply(
+                "Voice is not available in the chat. Please use the command from the bot menu."
+            )
+        elif (
+            message.content_type == types.ContentType.STICKER
+            or message.content_type == types.ContentType.ANIMATION
+        ):
+            await message.reply(
+                "Sticker and GIF is not available in the chat. Please use the command from the bot menu."
+            )
+        elif message.content_type == types.ContentType.LOCATION:
+            await message.reply(
+                "Location is not available in the chat. Please use the command from the bot menu."
+            )
         elif message.text.startswith("/"):
             await message.reply(
                 "This command is not available in the chat. Please use the command from the bot menu."
             )
-
         else:
             await message.reply(await generate_response(message.text))
             logging.info(f"User {message.from_user.id} asked a question (LLM)")
