@@ -35,11 +35,19 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        # filename="/var/log/kwbot.log",
-        # filemode="a",
-        encoding="UTF-8",
-    )
+    import platform
+
+    if platform.system() == "Linux":
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            filename="/var/log/kwbot.log",
+            filemode="a",
+            encoding="UTF-8",
+        )
+    else:
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        )
     asyncio.run(main())

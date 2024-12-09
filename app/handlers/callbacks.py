@@ -6,7 +6,7 @@ from app.services.food import (
     get_tomorrow_school_food_menu,
     get_school_food_info,
 )
-from aiogram.exceptions import BadRequest
+from aiogram.exceptions import TelegramBadRequest
 
 from app.strings import Strings, Language
 from app.services.news import get_news
@@ -83,7 +83,7 @@ async def process_callback_query(callback_query: types.CallbackQuery):
                 await callback_query.message.reply(
                     "Failed to fetch news. Please try again later."
                 )
-    except BadRequest as e:
+    except TelegramBadRequest as e:
         logging.error(f"Bad request: {e}")
         await callback_query.message.reply(Strings.get("callback_error", Language.EN))
     except Exception as e:
