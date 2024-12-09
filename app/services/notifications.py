@@ -5,9 +5,9 @@ from app.bot import bot
 from app.config import settings
 
 from app.utils.encryption import decrypt_password
-from app.database.database import get_all_users
+from app.database.database import get_all_users, get_user_language
 from app.services.kw import KwangwoonUniversityApi
-from app.strings import Strings, Language
+from app.strings import Strings
 
 
 # Define time thresholds in hours and their corresponding emoji indicators
@@ -52,6 +52,7 @@ async def check_todos():
             for user in users:
                 await asyncio.sleep(0)
                 user_id = user.user_id
+
                 if user_id not in notification_tracker:
                     notification_tracker[user_id] = {}
 
@@ -123,7 +124,9 @@ async def check_todos():
                                             ]
                                         ):  # Check if notification wasn't sent
 
-                                            threshold_messages[threshold] += (
+                                            threshold_messages[
+                                                threshold
+                                            ] += Strings.get(
                                                 f"{emoji} {subject_name}\n"
                                                 f"Type: {assignment_type.title()}\n"
                                                 f"Title: {title}\n"

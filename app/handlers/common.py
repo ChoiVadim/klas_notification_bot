@@ -6,17 +6,15 @@ from aiogram.types import FSInputFile
 
 from app.strings import Strings, Language
 from app.services.llm import generate_response
+from app.keyboards import create_language_keyboard
+from app.database.database import get_user_language
 
 
 async def cmd_start(message: types.Message):
-    # Detect user's language from message.from_user.language_code
-    user_lang = (
-        Language(message.from_user.language_code)
-        if message.from_user.language_code in [l.value for l in Language]
-        else Language.EN
-    )
-
     try:
+        user_lang = await get_user_language(str(message.from_user.id))
+        if not user_lang:
+            user_lang = Language.EN
 
         caption = Strings.get("welcome", user_lang, name=message.from_user.first_name)
         photo = FSInputFile("images/logo.jpg")
@@ -27,16 +25,25 @@ async def cmd_start(message: types.Message):
         logging.info(f"User {message.from_user.id} started the bot!")
     except Exception as e:
         logging.error(f"Error in cmd_start: {e}")
-        await message.answer(Strings.get("unexpected_error", Language.EN))
+        await message.answer(Strings.get("unexpected_error", user_lang))
+
+
+async def cmd_language(message: types.Message):
+    try:
+        await message.answer(
+            "Choose your language\n언어 선택\nВыберите язык",
+            reply_markup=create_language_keyboard(),
+        )
+    except Exception as e:
+        logging.error(f"Error in cmd_language: {e}")
 
 
 async def cmd_donate(message: types.Message):
     try:
-        user_lang = (
-            Language(message.from_user.language_code)
-            if message.from_user.language_code in [l.value for l in Language]
-            else Language.EN
-        )
+        user_lang = await get_user_language(str(message.from_user.id))
+        if not user_lang:
+            user_lang = Language.EN
+
         await message.reply_invoice(
             title=Strings.get("donate_title", user_lang),
             description=Strings.get("donate_description", user_lang),
@@ -53,11 +60,10 @@ async def cmd_donate(message: types.Message):
 
 async def cmd_refund(message: types.Message):
     try:
-        user_lang = (
-            Language(message.from_user.language_code)
-            if message.from_user.language_code in [l.value for l in Language]
-            else Language.EN
-        )
+        user_lang = await get_user_language(str(message.from_user.id))
+        if not user_lang:
+            user_lang = Language.EN
+
         # Check if the message is a reply to a payment message
         if (
             not message.reply_to_message
@@ -94,11 +100,10 @@ async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery)
 # Process all other messages using LLM
 async def other_message(message: types.Message):
     try:
-        user_lang = (
-            Language(message.from_user.language_code)
-            if message.from_user.language_code in [l.value for l in Language]
-            else Language.EN
-        )
+        user_lang = await get_user_language(str(message.from_user.id))  
+        if not user_lang:
+            user_lang = Language.EN
+
         if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
             await message.answer(Strings.get("refund_success", user_lang))
 
@@ -125,6 +130,7 @@ async def other_message(message: types.Message):
                 "Video is not available in the chat. Please use the command from the bot menu."
             )
         elif message.content_type == types.ContentType.VOICE:
+            # TODO: Add voice support
             await message.reply(
                 "Voice is not available in the chat. Please use the command from the bot menu."
             )
@@ -149,12 +155,13 @@ async def other_message(message: types.Message):
 
     except Exception as e:
         logging.error(f"Error in other_message: {e}")
-        await message.answer(Strings.get("unexpected_error", Language.EN))
+        await message.answer(Strings.get("unexpected_error", user_lang))
 
 
 def register_handlers(dp: Dispatcher):
     dp.message.register(cmd_start, Command("start"))
     dp.message.register(cmd_donate, Command("donate"))
     dp.message.register(cmd_refund, Command("refund"))
+    dp.message.register(cmd_language, Command("language"))
     dp.pre_checkout_query.register(process_pre_checkout_query)
     dp.message.register(other_message)

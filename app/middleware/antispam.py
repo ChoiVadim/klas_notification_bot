@@ -1,6 +1,9 @@
 import time
+import logging
 from aiogram.types import Message
 from aiogram import BaseMiddleware
+from app.strings import Strings, Language
+from app.database.database import get_user_language
 
 
 class AntiSpamMiddleware(BaseMiddleware):
@@ -10,20 +13,25 @@ class AntiSpamMiddleware(BaseMiddleware):
         self.user_last_message_time = {}
 
     async def __call__(self, handler, event: Message, data: dict):
-        user_id = event.from_user.id
-        current_time = time.time()
+        try:
+            user_id = event.from_user.id
+            current_time = time.time()
+            user_lang = await get_user_language(str(user_id))
+            if not user_lang:
+                user_lang = Language.EN
 
-        # Check if the user has sent a message recently
-        if user_id in self.user_last_message_time:
-            last_message_time = self.user_last_message_time[user_id]
-            if current_time - last_message_time < self.limit:
-                await event.answer(
-                    "You are sending messages too quickly. Please wait a moment."
-                )
-                return
+            # Check if the user has sent a message recently
+            if user_id in self.user_last_message_time:
+                last_message_time = self.user_last_message_time[user_id]
+                if current_time - last_message_time < self.limit:
+                    await event.answer(Strings.get("too_many_messages", user_lang))
+                    return
 
-        # Update the last message time
-        self.user_last_message_time[user_id] = current_time
+            # Update the last message time
+            self.user_last_message_time[user_id] = current_time
 
-        # Proceed with the next handler
-        return await handler(event, data)
+            # Proceed with the next handler
+            return await handler(event, data)
+        except Exception as e:
+            logging.error(f"Error in AntiSpamMiddleware: {e}")
+            return await handler(event, data)

@@ -74,8 +74,8 @@ async def get_tomorrow_school_food_menu():
     return await get_menu_for_day(tomorrow_index)
 
 
-async def get_school_food_info():
-    return Strings.get("school_food_info", Language.EN)
+async def get_school_food_info(user_lang: Language):
+    return Strings.get("school_food_info", user_lang)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ from aiogram import Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import FSInputFile
 
-from app.database.database import get_user
+from app.database.database import get_user, get_user_language
 from app.utils.encryption import decrypt_password
 from app.services.kw import KwangwoonUniversityApi
 from app.strings import Strings, Language
@@ -14,11 +14,14 @@ from app.strings import Strings, Language
 
 async def cmd_info(message: types.Message):
     try:
+        user_lang = await get_user_language(str(message.from_user.id))
+        if not user_lang:
+            user_lang = Language.EN
         logging.info(f"User {message.from_user.id} used /info command")
         # Check if user is registered
         user = await get_user(str(message.from_user.id))
         if not user:
-            await message.answer(Strings.get("need_to_register", Language.EN))
+            await message.answer(Strings.get("need_to_register", user_lang))
             return
 
         async with KwangwoonUniversityApi() as kw:
@@ -27,7 +30,7 @@ async def cmd_info(message: types.Message):
 
             if not student_info:
                 await message.answer(
-                    Strings.get("failed_to_fetch_student_info", Language.EN)
+                    Strings.get("failed_to_fetch_student_info", user_lang)
                 )
                 return
 
@@ -49,7 +52,7 @@ async def cmd_info(message: types.Message):
 
             msg = Strings.get(
                 "student_info",
-                Language.EN,
+                user_lang,
                 uid=student_info["uid"],
                 name=student_info["name"],
                 major=student_info["major"],
@@ -72,7 +75,7 @@ async def cmd_info(message: types.Message):
 
     except Exception as e:
         logging.error(f"Unexpected error in cmd_info: {e}")
-        await message.answer(Strings.get("unexpected_error", Language.EN))
+        await message.answer(Strings.get("unexpected_error", user_lang))
 
 
 def register_handlers(dp: Dispatcher):

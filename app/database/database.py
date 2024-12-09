@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 from app.database.models import Base, User, LibraryUser
+from app.strings import Language
 
 # Create an async engine
 engine = create_async_engine("sqlite+aiosqlite:///bot_users.db", echo=True)
@@ -44,6 +45,25 @@ async def save_user(user_id: str, username: str, encrypted_password: str):
                 await session.rollback()
                 logging.error(f"Error saving user: {e}")
                 return False
+
+
+async def set_user_language(user_id: str, language: str):
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            user = await session.get(User, user_id)
+            if user:
+                user.language = language
+                await session.commit()
+                return True
+            return False
+
+
+async def get_user_language(user_id: str):
+    async with AsyncSessionLocal() as session:
+        user = await session.get(User, user_id)
+        if user:
+            return Language(user.language)
+        return None
 
 
 async def get_user(user_id: str):

@@ -1,6 +1,8 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+from app.strings import Strings, Language
+
 
 def create_todos_keyboard():
     todos_keyboard = InlineKeyboardBuilder()
@@ -10,10 +12,23 @@ def create_todos_keyboard():
     return todos_keyboard.as_markup()
 
 
-def create_food_menu_keyboard():
+def create_language_keyboard():
+    language_keyboard = InlineKeyboardBuilder()
+    language_keyboard.button(text="English", callback_data="language_en")
+    language_keyboard.button(text="한국어", callback_data="language_ko")
+    language_keyboard.button(text="Русский", callback_data="language_ru")
+    language_keyboard.adjust(1)
+    return language_keyboard.as_markup()
+
+
+def create_food_menu_keyboard(user_lang: Language):
     builder = InlineKeyboardBuilder()
-    builder.button(text="Tomorrow's Menu", callback_data="filter_tomorrow")
-    builder.button(text="Info", callback_data="filter_food_info")
+    builder.button(
+        text=Strings.get("tomorrow_menu", user_lang), callback_data="filter_tomorrow"
+    )
+    builder.button(
+        text=Strings.get("info", user_lang), callback_data="filter_food_info"
+    )
     builder.adjust(1)  # Adjust the number of buttons per row
 
     # Convert the builder to InlineKeyboardMarkup
@@ -28,10 +43,15 @@ def create_back_to_food_menu_keyboard():
     return builder.as_markup()
 
 
-def create_news_keyboard():
+def create_news_keyboard(user_lang: Language):
     builder = InlineKeyboardBuilder()
-    builder.button(text="For Foreigners", callback_data="filter_foreigners_news")
-    builder.button(text="All", callback_data="filter_all_news")
+    builder.button(
+        text=Strings.get("foreigners_news", user_lang),
+        callback_data="filter_foreigners_news",
+    )
+    builder.button(
+        text=Strings.get("all_news", user_lang), callback_data="filter_all_news"
+    )
     builder.adjust(2)
 
     return builder.as_markup()
