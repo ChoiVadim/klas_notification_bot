@@ -6,6 +6,8 @@ from app.services.food import (
     get_tomorrow_school_food_menu,
     get_school_food_info,
 )
+from aiogram.exceptions import BadRequest
+
 from app.strings import Strings, Language
 from app.services.news import get_news
 from app.keyboards import (
@@ -81,6 +83,9 @@ async def process_callback_query(callback_query: types.CallbackQuery):
                 await callback_query.message.reply(
                     "Failed to fetch news. Please try again later."
                 )
+    except BadRequest as e:
+        logging.error(f"Bad request: {e}")
+        await callback_query.message.reply(Strings.get("callback_error", Language.EN))
     except Exception as e:
         logging.error(f"Error in process_callback_query: {e}")
         await callback_query.message.reply(Strings.get("unexpected_error", Language.EN))

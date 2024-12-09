@@ -7,6 +7,7 @@ from app.config import settings
 from app.utils.encryption import decrypt_password
 from app.database.database import get_all_users
 from app.services.kw import KwangwoonUniversityApi
+from app.strings import Strings, Language
 
 
 # Define time thresholds in hours and their corresponding emoji indicators
@@ -46,7 +47,6 @@ async def check_todos():
 
     while True:
         try:
-            logging.info("Starting sending notifications about assignments!")
             users = await get_all_users()
 
             for user in users:

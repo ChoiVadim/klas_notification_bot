@@ -44,6 +44,7 @@ Made with ❤️ by @tsoivadim""",
             "no_assignments": "Good job! You have no assignments to do right now 🎉",
             "failed_to_fetch_student_info": "🚨 Failed to fetch student information. Please try again later.",
             "unexpected_error": "🚨 Oops, something went wrong. Please try again later!",
+            "callback_error": "Please dont spam me!",
             "library_user_not_found": "🚫 You need to login to library first, please use /lregister command",
             "student_info": """ UID: {uid} 
 👨‍🎓 Name: {name} 

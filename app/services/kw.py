@@ -325,6 +325,75 @@ class KwangwoonUniversityApi:
                 return await response.json()
             return None
 
+    def _get_major_credits(self, major):
+        if "전자정보공학대학" in major:
+            return {
+                "total_credits": 133,
+                "major_credits": 60,
+                "elective_credits": 30,
+            }
+        elif "소프트웨어학" in major:
+            return {
+                "total_credits": 133,
+                "major_credits": 60,
+                "elective_credits": 30,
+            }
+        elif "공과대학" in major:
+            if "건축학" in major:
+                return {
+                    "total_credits": 163,
+                    "major_credits": 120,
+                    "elective_credits": 55,
+                }
+            else:
+                return {
+                    "total_credits": 133,
+                    "major_credits": 60,
+                    "elective_credits": 30,
+                }
+        elif "자연과학대학" in major:
+            return {
+                "total_credits": 133,
+                "major_credits": 60,
+                "elective_credits": 30,
+            }
+        elif "인문사회과학대학" in major:
+            return {
+                "total_credits": 130,
+                "general_credits": 51,
+                "major_credits": 45,
+                "elective_credits": 34,
+            }
+        elif "정책법학대학" in major:
+            return {
+                "total_credits": 130,
+                "general_credits": 45,
+                "major_credits": 36,
+                "elective_credits": 49,
+            }
+        elif "경영대학" in major:
+            if "국제통상학부" in major:
+                return {
+                    "total_credits": 133,
+                    "general_credits": 57,
+                    "major_credits": 45,
+                    "elective_credits": 31,
+                }
+            else:
+                return {
+                    "total_credits": 130,
+                    "general_credits": 54,
+                    "major_credits": 45,
+                    "elective_credits": 31,
+                }
+        else:
+            return {
+                "total_credits": 0,
+                "general_credits": 0,
+                "major_credits": 0,
+                "elective_credits": 0,
+            }
+
     async def get_student_info(self) -> Optional[Dict]:
         if not self._cookies_is_valid():
             return None
@@ -350,26 +419,33 @@ class KwangwoonUniversityApi:
         student_id = student_info.get("hakbun")
         major = student_info.get("hakgwa")
         student_name = student_info.get("kname")
-
         student_credits = grades.get("chidukHakjum")
-        total_credits = 133
-        total_major_credits = 60
-        total_elective_credits = 30
-
         elective_credits = grades.get("cultureChidukHakjum")
         major_credits = grades.get("majorChidukHakjum")
-
         average_score = grades.get("jaechulScoresum")
 
-        credits_ratio = round((student_credits / total_credits) * 100, 2)
-        major_credits_ratio = round((major_credits / total_major_credits) * 100, 2)
+        if "소프트웨어" in major:
+            total_credits = 133
+            total_major_credits = 60
+            total_elective_credits = 30
 
-        credits_for_each_semester = round(
-            (total_credits - student_credits) / (4 * 2 - semester + 1), 2
-        )
-        major_credits_for_each_semester = round(
-            (total_major_credits - major_credits) / (4 * 2 - semester + 1), 2
-        )
+            credits_ratio = round((student_credits / total_credits) * 100, 2)
+            major_credits_ratio = round((major_credits / total_major_credits) * 100, 2)
+
+            credits_for_each_semester = round(
+                (total_credits - student_credits) / (4 * 2 - semester + 1), 2
+            )
+            major_credits_for_each_semester = round(
+                (total_major_credits - major_credits) / (4 * 2 - semester + 1), 2
+            )
+        else:
+            total_credits = "N/A"
+            total_major_credits = "N/A"
+            total_elective_credits = "N/A"
+            credits_ratio = "N/A"
+            major_credits_ratio = "N/A"
+            credits_for_each_semester = "N/A"
+            major_credits_for_each_semester = "N/A"
 
         return {
             "uid": student_id,

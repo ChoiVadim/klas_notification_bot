@@ -3,10 +3,12 @@ import logging
 from app.bot import dp, bot, setup_handlers
 from app.database.database import init_db
 from app.services.notifications import start_notification_service
+from app.config import settings
 
 
 async def main():
     logging.info("Starting bot...")
+    await bot.send_message(chat_id=settings.ADMIN_ID, text="Bot started successfully!")
 
     # Initialize database
     await init_db()
@@ -25,6 +27,9 @@ async def main():
         logging.error(f"Error in main loop: {e}")
     finally:
         # Cleanup if needed
+        await bot.send_message(
+            chat_id=settings.ADMIN_ID, text="Bot is shutting down..."
+        )
         logging.info("Closing bot session")
         await bot.session.close()
 
@@ -33,6 +38,8 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        # filename="/var/log/kwbot.log",
+        # filemode="a",
         encoding="UTF-8",
     )
     asyncio.run(main())
