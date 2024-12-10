@@ -30,10 +30,17 @@ async def cmd_start(message: types.Message):
 
 async def cmd_language(message: types.Message):
     try:
-        await message.answer(
-            "Choose your language\n언어 선택\nВыберите язык",
-            reply_markup=create_language_keyboard(),
-        )
+        status = await get_user_language(str(message.from_user.id))
+        if not status:
+            await message.answer(
+                Strings.get("language_change_failed", Language.EN),
+            )
+
+        else:
+            await message.answer(
+                "🇺🇸 Choose your language\n🇰🇷 언어 선택\n🇷🇺 Выберите язык",
+                reply_markup=create_language_keyboard(),
+            )
     except Exception as e:
         logging.error(f"Error in cmd_language: {e}")
 
@@ -100,15 +107,15 @@ async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery)
 # Process all other messages using LLM
 async def other_message(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))  
+        user_lang = await get_user_language(str(message.from_user.id))
         if not user_lang:
             user_lang = Language.EN
 
         if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
-            await message.answer(Strings.get("refund_success", user_lang))
+            await message.answer(Strings.get("successful_payment", user_lang))
 
         elif message.content_type == types.ContentType.REFUNDED_PAYMENT:
-            await message.answer(Strings.get("refund_success", user_lang))
+            pass
 
         elif message.content_type == types.ContentType.PHOTO:
             await message.reply(

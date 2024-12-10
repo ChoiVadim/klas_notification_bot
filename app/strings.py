@@ -50,6 +50,7 @@ Made with ❤️ by @tsoivadim""",
             "callback_error": "Please dont spam me!",
             "donate_title": "Buy me a coffee!😁",
             "donate_description": "Thank you for using my bot!",
+            "successful_payment": "✅ Payment successful!",
             "refund_error": "Please reply to a payment message to request a refund!",
             "refund_success": "✅ Refund has been processed successfully.",
             "refund_error_message": "❌ Refund request was not successful. Please try again later.",
@@ -86,12 +87,14 @@ Average Score: {average_score} 📈""",
 Everything is a buffet, so you can pay once and eat as much as you want 🍴
 """,
             "school_closed_on_weekend": "🚫 Cafeteria is closed on the weekend ",
-            "foreigners_news": "Foreigners",
-            "all_news": "All",
-            "tomorrow_menu": "Tomorrow's Menu",
-            "info": "Info",
-            "read_more": "Read more",
-            "language_changed": "Language changed successfully!",
+            "foreigners_news": "🌏 Foreigners",
+            "all_news": "📰 All",
+            "tomorrow_menu": "🗓️ Tomorrow's Menu",
+            "info": "ℹ️ Info",
+            "read_more": "📖 Read more",
+            "language_changed": "✅ Language changed successfully!",
+            "language_change_failed": "❌ Please /register before changing language!",
+            "language_choice": "🌐 Choose your language",
         },
         Language.KO: {
             "welcome": """안녕하세요, {name}님!👋
@@ -133,6 +136,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "donate_title": "커피 한 잔 사주세요!😁",
             "donate_description": "봇을 이용해주셔서 감사합니다!",
             "refund_error": "환불을 요청하려면 결제 메시지에 답장해주세요!",
+            "successful_payment": "✅ 결제가 성공적으로 처리되었습니다.",
             "refund_success": "✅ 환불이 성공적으로 처리되었습니다.",
             "refund_error_message": "❌ 환불 요청이 실패했습니다. 나중에 다시 시도해주세요.",
             "library_user_not_found": "🚫 먼저 도서관 로그인이 필요합니다, /lregister 명령어를 사용해주세요",
@@ -148,6 +152,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "team_projects": "팀 프로젝트 {count}개가 남았습니다",
             "too_many_messages": "너무 빠르게 메시지를 보내고 있습니다. 잠시 기다려주세요.",
             "student_info": """학번: {uid} 
+            
 👨‍🎓 이름: {name} 
 전공: {major}
 학년: {grade} 학기: {semester}
@@ -168,12 +173,13 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
 모든 메뉴는 뷔페식으로, 한 번 결제하면 원하는 만큼 드실 수 있습니다 🍴
 """,
             "school_closed_on_weekend": "🚫 주말에는 식당이 운영하지 않습니다",
-            "foreigners_news": "국제",
-            "all_news": "전체",
-            "tomorrow_menu": "내일 식단",
-            "info": "정보",
-            "read_more": "자세히 보기",
-            "language_changed": "언어가 성공적으로 변경되었습니다!",
+            "foreigners_news": "🌏 국제",
+            "all_news": "📰 전체",
+            "tomorrow_menu": "🍽️ 내일 식단",
+            "info": "ℹ️ 정보",
+            "read_more": "👀 자세히 보기",
+            "language_changed": "✅ 언어가 성공적으로 변경되었습니다!",
+            "language_change_failed": "❌ 언어 변경 실패. 먼저 /register 명령어를 사용해주세요",
         },
         Language.RU: {
             "welcome": """Добро пожаловать, {name}!
@@ -215,6 +221,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "donate_title": "Угостите меня кофе!😁",
             "donate_description": "Спасибо за использование моего бота!",
             "refund_error": "Пожалуйста, ответьте на сообщение об оплате, чтобы запросить возврат!",
+            "successful_payment": "✅ Оплата прошла успешно!",
             "refund_success": "✅ Возврат успешно обработан.",
             "refund_error_message": "❌ Запрос на возврат не был успешным. Попробуйте позже.",
             "library_user_not_found": "🚫 Сначала нужно войти в библиотеку, используйте команду /lregister",
@@ -250,12 +257,13 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
 Все работает по системе шведского стола, так что вы можете заплатить один раз и есть сколько хотите 🍴
 """,
             "school_closed_on_weekend": "🚫 Столовая закрыта в выходные",
-            "foreigners_news": "Иностранцы",
-            "all_news": "Все",
-            "tomorrow_menu": "Меню на завтра",
-            "info": "Информация",
-            "read_more": "Читать далее",
-            "language_changed": "Язык успешно изменен!",
+            "foreigners_news": "🌏 Иностранцы",
+            "all_news": "📰 Все",
+            "tomorrow_menu": "🍽️ Меню на завтра",
+            "info": "ℹ️ Информация",
+            "read_more": "📖 Читать далее",
+            "language_changed": "✅ Язык успешно изменен!",
+            "language_change_failed": "❌ Зарегистрируйтесь /register перед изменением языка",
         },
     }
 

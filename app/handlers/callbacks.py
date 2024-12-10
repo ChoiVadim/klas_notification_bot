@@ -45,22 +45,25 @@ async def process_callback_query(callback_query: types.CallbackQuery):
                 Strings.get("choose_news_type", user_lang),
                 reply_markup=create_news_keyboard(user_lang),
             )
+
+        # Language change
         elif callback_query.data == "language_en":
             await set_user_language(callback_query.from_user.id, "en")
             await callback_query.message.edit_text(
-                Strings.get("language_changed", user_lang),
+                Strings.get("language_changed", Language.EN),
             )
         elif callback_query.data == "language_ko":
             await set_user_language(callback_query.from_user.id, "ko")
             await callback_query.message.edit_text(
-                Strings.get("language_changed", user_lang),
+                Strings.get("language_changed", Language.KO),
             )
         elif callback_query.data == "language_ru":
             await set_user_language(callback_query.from_user.id, "ru")
             await callback_query.message.edit_text(
-                Strings.get("language_changed", user_lang),
+                Strings.get("language_changed", Language.RU),
             )
 
+        # News
         elif callback_query.data == "filter_foreigners_news":
             try:
                 await callback_query.message.delete()
@@ -101,7 +104,12 @@ async def process_callback_query(callback_query: types.CallbackQuery):
                         f"📰 {title}\n{date}",
                         reply_markup=InlineKeyboardMarkup(
                             inline_keyboard=[
-                                [InlineKeyboardButton(text="Read more", url=link)]
+                                [
+                                    InlineKeyboardButton(
+                                        text=Strings.get("read_more", user_lang),
+                                        url=link,
+                                    )
+                                ]
                             ]
                         ),
                     )

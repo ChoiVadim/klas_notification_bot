@@ -6,15 +6,17 @@ from app.keyboards import create_news_keyboard
 from app.strings import Strings, Language
 from app.database.database import get_user_language
 
+
 async def cmd_news(message: types.Message):
     try:
         user_lang = await get_user_language(str(message.from_user.id))
         if not user_lang:
             user_lang = Language.EN
+
         logging.info(f"User {message.from_user.id} used /news command")
         await message.answer(
             Strings.get("choose_news_type", user_lang),
-            reply_markup=create_news_keyboard(),
+            reply_markup=create_news_keyboard(user_lang),
         )
         await message.delete()
     except Exception as e:
