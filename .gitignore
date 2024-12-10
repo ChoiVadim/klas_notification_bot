@@ -1,8 +1,8 @@
 .venv
+images/
 .env
 *.json
 *cache*
 log.txt
 *.db
 *.key
-/images
