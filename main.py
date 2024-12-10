@@ -7,7 +7,6 @@ from app.config import settings
 
 
 async def main():
-    logging.info("Starting bot...")
     await bot.send_message(chat_id=settings.ADMIN_ID, text="Bot started successfully!")
 
     # Initialize database
@@ -30,13 +29,13 @@ async def main():
         await bot.send_message(
             chat_id=settings.ADMIN_ID, text="Bot is shutting down..."
         )
-        logging.info("Closing bot session")
         await bot.session.close()
 
 
 if __name__ == "__main__":
     import platform
 
+    # Configure logging first
     if platform.system() == "Linux":
         logging.basicConfig(
             level=logging.INFO,
@@ -50,4 +49,7 @@ if __name__ == "__main__":
             level=logging.INFO,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         )
+
+    logging.info("Starting bot...")
     asyncio.run(main())
+    logging.info("Program finished!")

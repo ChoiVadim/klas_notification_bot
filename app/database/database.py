@@ -9,7 +9,7 @@ from app.strings import Language
 from app.config import settings
 
 # Create an async engine
-engine = create_async_engine(settings.DATABASE_URL, echo=True)
+engine = create_async_engine(settings.DATABASE_URL, echo=False)
 
 # Create an async session
 AsyncSessionLocal = sessionmaker(
