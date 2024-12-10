@@ -6,3 +6,6 @@ images/
 log.txt
 *.db
 *.key
+htmlcov/
+.pytest_cache/
+.coverage

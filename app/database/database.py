@@ -6,9 +6,10 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 from app.database.models import Base, User, LibraryUser
 from app.strings import Language
+from app.config import settings
 
 # Create an async engine
-engine = create_async_engine("sqlite+aiosqlite:///bot_users.db", echo=True)
+engine = create_async_engine(settings.DATABASE_URL, echo=True)
 
 # Create an async session
 AsyncSessionLocal = sessionmaker(

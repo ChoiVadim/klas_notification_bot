@@ -11,6 +11,8 @@ class Language(Enum):
 class Strings:
     _strings: Dict[Language, Dict[str, str]] = {
         Language.EN: {
+            "test_string": "Welcome, Test User!",
+            "nonexistent_key": "Nonexistent key",
             "welcome": """Welcome, {name}!
 This bot is made for the students of Kwangwoon University 🏫
 This bot will track your all assignments and notify you when they are less than 24 hours left, so you will not miss any important tasks🧭
@@ -97,6 +99,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "language_choice": "🌐 Choose your language",
         },
         Language.KO: {
+            "test_string": "환영합니다!",
             "welcome": """안녕하세요, {name}님!👋
 이 봇은 광운대학교 학생들을 위해 만들어졌습니다 🏫
 이 봇은 모든 과제를 추적하고 24시간 이내에 남은 과제가 있을 때 알림을 보내드립니다. 중요한 과제를 놓치지 않도록 도와드립니다 🧭
@@ -182,6 +185,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "language_change_failed": "❌ 언어 변경 실패. 먼저 /register 명령어를 사용해주세요",
         },
         Language.RU: {
+            "test_string": "Добро пожаловать!",
             "welcome": """Добро пожаловать, {name}!
 Этот бот создан для студентов университета Квангвун 🏫
 Бот будет отслеживать все ваши задания и уведомлять вас, когда до сдачи останется менее 24 часов, чтобы вы не пропустили важные задачи 🧭
