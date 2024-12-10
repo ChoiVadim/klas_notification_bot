@@ -50,13 +50,7 @@ async def show_all_assignments(message: types.Message):
                     assignments = subject["todo"].get(assignment_type, [])
                     if assignments:
                         has_assignments = True
-                        subject_tasks += (
-                            emoji
-                            + Strings.get(
-                                assignment_type, user_lang, count=len(assignments)
-                            )
-                            + "\n"
-                        )
+                        subject_tasks += f"{emoji} {Strings.get(assignment_type, user_lang, count=len(assignments))}\n"
 
                         for assignment in assignments:
                             left_time = assignment["left_time"]

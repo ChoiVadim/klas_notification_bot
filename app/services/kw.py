@@ -193,12 +193,13 @@ class KwangwoonUniversityApi:
 
     def _get_not_done_lectures_info(self, lectures: list[dict]) -> list[dict]:
         not_done_lectures = []
+        today_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         for lecture in lectures:
             if (
                 lecture.get("prog") is not None
                 and lecture.get("prog") < 100
-                and lecture.get("startDate")
-                < datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+                and lecture.get("startDate") < today_date
+                and lecture.get("endDate") > today_date
             ):
                 not_done_lectures.append(
                     {
@@ -214,8 +215,13 @@ class KwangwoonUniversityApi:
 
     def _get_not_done_homeworks_info(self, homeworks: list[dict]) -> list[dict]:
         not_done_homeworks = []
+        today_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         for homework in homeworks:
-            if homework.get("submityn") == "N":
+            if (
+                homework.get("submityn") == "N"
+                and homework.get("startdate") < today_date
+                and homework.get("expiredate") > today_date
+            ):
                 not_done_homeworks.append(
                     {
                         "title": homework.get("title"),
@@ -229,8 +235,13 @@ class KwangwoonUniversityApi:
 
     def _get_not_done_team_projects_info(self, team_projects: list[dict]) -> list[dict]:
         not_done_team_projects = []
+        today_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
         for team_project in team_projects:
-            if team_project.get("submityn") != "Y":
+            if (
+                team_project.get("submityn") != "Y"
+                and team_project.get("startdate") < today_date
+                and team_project.get("expiredate") > today_date
+            ):
                 not_done_team_projects.append(
                     {
                         "title": team_project.get("title"),
@@ -246,8 +257,13 @@ class KwangwoonUniversityApi:
 
     def _get_not_done_quizzes_info(self, quizzes: list[dict]) -> list[dict]:
         not_done_quizzes = []
+        today_date = datetime.datetime.now().strftime("%Y%m%d%H%M")
         for quiz in quizzes:
-            if quiz.get("issubmit") == "N":
+            if (
+                quiz.get("issubmit") == "N"
+                and quiz.get("sdate") < today_date
+                and quiz.get("edate") > today_date
+            ):
                 not_done_quizzes.append(
                     {
                         "title": quiz.get("papernm"),
@@ -325,7 +341,7 @@ class KwangwoonUniversityApi:
                 return await response.json()
             return None
 
-    def _get_major_credits(self, major):
+    async def _get_major_credits(self, major):
         if "전자정보공학대학" in major:
             return {
                 "total_credits": 133,

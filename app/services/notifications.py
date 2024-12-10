@@ -124,9 +124,7 @@ async def check_todos():
                                             ]
                                         ):  # Check if notification wasn't sent
 
-                                            threshold_messages[
-                                                threshold
-                                            ] += Strings.get(
+                                            threshold_messages[threshold] += (
                                                 f"{emoji} {subject_name}\n"
                                                 f"Type: {assignment_type.title()}\n"
                                                 f"Title: {title}\n"
