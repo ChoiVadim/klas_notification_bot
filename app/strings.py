@@ -97,6 +97,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "language_changed": "✅ Language changed successfully!",
             "language_change_failed": "❌ Please /register before changing language!",
             "language_choice": "🌐 Choose your language",
+            "school_food_menu_header": "🍴 {day}'s School Food Menu 🍴\n\n",
         },
         Language.KO: {
             "test_string": "환영합니다!",
@@ -155,7 +156,6 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "team_projects": "팀 프로젝트 {count}개가 남았습니다",
             "too_many_messages": "너무 빠르게 메시지를 보내고 있습니다. 잠시 기다려주세요.",
             "student_info": """학번: {uid} 
-            
 👨‍🎓 이름: {name} 
 전공: {major}
 학년: {grade} 학기: {semester}
@@ -183,6 +183,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "read_more": "👀 자세히 보기",
             "language_changed": "✅ 언어가 성공적으로 변경되었습니다!",
             "language_change_failed": "❌ 언어 변경 실패. 먼저 /register 명령어를 사용해주세요",
+            "school_food_menu_header": "🍴 {day} 학교 식단 메뉴 🍴\n\n",
         },
         Language.RU: {
             "test_string": "Добро пожаловать!",
@@ -268,6 +269,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "read_more": "📖 Читать далее",
             "language_changed": "✅ Язык успешно изменен!",
             "language_change_failed": "❌ Зарегистрируйтесь /register перед изменением языка",
+            "school_food_menu_header": "🍴 Меню на {day} 🍴\n\n",
         },
     }
 

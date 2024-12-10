@@ -10,6 +10,16 @@ from Crypto.Cipher import AES
 
 BASE_URL = "https://mobileid.kw.ac.kr"
 
+# Add a session variable at module level
+_session = None
+
+
+async def get_session():
+    global _session
+    if _session is None:
+        _session = ClientSession()
+    return _session
+
 
 def encode(msg: str):
     return b64encode(msg.encode(encoding="utf-8")).decode()
@@ -33,13 +43,13 @@ async def get_secret_key(real_id: str) -> str:
     url = f"{BASE_URL}/mobile/MA/xml_user_key.php"
     data = {"user_id": encode(real_id)}
 
-    async with ClientSession() as session:
-        async with session.post(url, data=data) as response:
-            if response.status != 200:
-                raise Exception(f"Failed to fetch secret key: {response.status}")
+    session = await get_session()
+    async with session.post(url, data=data) as response:
+        if response.status != 200:
+            raise Exception(f"Failed to fetch secret key: {response.status}")
 
-            response_data = await response.text()
-            return parse_xml_response(response_data, "sec_key")
+        response_data = await response.text()
+        return parse_xml_response(response_data, "sec_key")
 
 
 async def library_login(std_number: str, phone: str, password: str, secret: str) -> str:
@@ -53,19 +63,19 @@ async def library_login(std_number: str, phone: str, password: str, secret: str)
         "pass_wd": encrypted_password,
     }
 
-    async with ClientSession() as session:
-        async with session.post(url, data=data) as response:
-            if response.status != 200:
-                logging.error(f"Failed to get auth key: {response.status}")
-                return None
+    session = await get_session()
+    async with session.post(url, data=data) as response:
+        if response.status != 200:
+            logging.error(f"Failed to get auth key: {response.status}")
+            return None
 
-            response_data = await response.text(encoding="iso-8859-1")
-            auth_key = parse_xml_response(response_data, "auth_key")
-            if not auth_key:
-                logging.error(f"Failed to get auth key: {response_data}")
-                return None
+        response_data = await response.text(encoding="iso-8859-1")
+        auth_key = parse_xml_response(response_data, "auth_key")
+        if not auth_key:
+            logging.error(f"Failed to get auth key: {response_data}")
+            return None
 
-            return auth_key
+        return auth_key
 
 
 async def get_qr_code(real_id: str, auth_key: str) -> dict:
@@ -86,21 +96,21 @@ async def get_qr_code(real_id: str, auth_key: str) -> dict:
                         if root.find(".//qr_code") is not None
                         else None
                     ),
-                    "user_name": (
-                        root.find(".//user_name").text
-                        if root.find(".//user_name") is not None
-                        else None
-                    ),
-                    "user_code": (
-                        root.find(".//user_code").text
-                        if root.find(".//user_code") is not None
-                        else None
-                    ),
-                    "user_deptName": (
-                        root.find(".//user_deptName").text
-                        if root.find(".//user_deptName") is not None
-                        else None
-                    ),
+                    # "user_name": (
+                    #     root.find(".//user_name").text
+                    #     if root.find(".//user_name") is not None
+                    #     else None
+                    # ),
+                    # "user_code": (
+                    #     root.find(".//user_code").text
+                    #     if root.find(".//user_code") is not None
+                    #     else None
+                    # ),
+                    # "user_deptName": (
+                    #     root.find(".//user_deptName").text
+                    #     if root.find(".//user_deptName") is not None
+                    #     else None
+                    # ),
                 }
             except ET.ParseError as e:
                 print(f"Raw response: {response_data}")
@@ -120,33 +130,23 @@ async def generate_qr_code(qr_data: str, path: str):
         logging.error("Error: Invalid QR code data.")
         return
 
-    # Extract data for UI
-    user_name = qr_data.get("user_name", "Unknown User")
-    user_code = qr_data.get("user_code", "").strip()
-    user_dept = qr_data.get("user_deptName", "Unknown Department")
-    user_pat = qr_data.get("user_patName", "")
-
     qr_value = qr_data["qr_code"]
 
-    # Create a QR code instance
+    # Optimized QR parameters
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
+        box_size=8,  # Reduced box size
+        border=4,  # Reduced border
     )
 
-    # Add the data to the QR code
     qr.add_data(qr_value)
     qr.make(fit=True)
 
-    # Create an image from the QR code
     img = qr.make_image(fill="black", back_color="white")
+    img.save(path, format="PNG", optimize=True)  # Add optimization for PNG
 
-    filename = path
-    img.save(filename)
-
-    return filename
+    return path
 
 
 async def get_qr(std_number: str, phone_number: str, password: str):

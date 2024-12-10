@@ -13,8 +13,9 @@ async def show_school_food_menu(message: types.Message):
         user_lang = await get_user_language(str(message.from_user.id))
         if not user_lang:
             user_lang = Language.EN
+
         await message.answer(
-            await get_today_school_food_menu(),
+            await get_today_school_food_menu(user_lang),
             reply_markup=create_food_menu_keyboard(user_lang),
         )
         logging.info(f"User {message.from_user.id} used /menu command")

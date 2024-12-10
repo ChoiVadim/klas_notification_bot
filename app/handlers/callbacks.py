@@ -32,12 +32,12 @@ async def process_callback_query(callback_query: types.CallbackQuery):
             )
         elif callback_query.data == "filter_today":
             await callback_query.message.edit_text(
-                await get_today_school_food_menu(),
+                await get_today_school_food_menu(user_lang),
                 reply_markup=create_food_menu_keyboard(user_lang),
             )
         elif callback_query.data == "filter_tomorrow":
             await callback_query.message.edit_text(
-                await get_tomorrow_school_food_menu(),
+                await get_tomorrow_school_food_menu(user_lang),
                 reply_markup=create_back_to_food_menu_keyboard(),
             )
         elif callback_query.data == "filter_news":
