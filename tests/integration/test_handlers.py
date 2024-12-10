@@ -38,4 +38,4 @@ async def test_cmd_language():
         await cmd_language(message)
 
     message.answer.assert_called_once()
-    assert "Choose your language" in message.answer.call_args[0][0]
+    assert "/register" in message.answer.call_args[0][0]
