@@ -4,10 +4,13 @@ from app.bot import dp, bot, setup_handlers
 from app.database.database import init_db
 from app.services.notifications import start_notification_service
 from app.config import settings
+from app.menu import initialize_bot_menu
 
 
 async def main():
     await bot.send_message(chat_id=settings.ADMIN_ID, text="Bot started successfully!")
+    await initialize_bot_menu()
+
 
     # Initialize database
     await init_db()

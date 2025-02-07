@@ -14,7 +14,7 @@ async def cmd_start(message: types.Message):
     try:
         user_lang = await get_user_language(str(message.from_user.id))
         if not user_lang:
-            user_lang = Language.EN
+            user_lang = Language(message.from_user.language_code) or Language.EN
 
         caption = Strings.get("welcome", user_lang, name=message.from_user.first_name)
         photo = FSInputFile("images/logo.jpg")
