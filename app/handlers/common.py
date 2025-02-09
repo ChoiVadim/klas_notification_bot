@@ -13,8 +13,12 @@ from app.database.database import get_user_language
 async def cmd_start(message: types.Message):
     try:
         user_lang = await get_user_language(str(message.from_user.id))
+        
         if not user_lang:
-            user_lang = Language(message.from_user.language_code) or Language.EN
+            if message.from_user.language_code in ["ko", "ru", "en"]:
+                user_lang = Language(message.from_user.language_code)
+            else:
+                user_lang = Language.EN
 
         caption = Strings.get("welcome", user_lang, name=message.from_user.first_name)
         photo = FSInputFile("images/logo.jpg")
@@ -104,7 +108,7 @@ async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery)
         logging.error(f"Error in process_pre_checkout_query: {e}")
 
 
-# Process all other messages using LLM
+# TODO: Add voice support and handle other content types
 async def other_message(message: types.Message):
     try:
         user_lang = await get_user_language(str(message.from_user.id))
