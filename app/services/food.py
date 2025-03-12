@@ -101,15 +101,15 @@ async def get_menu_for_day(day_index: int, user_lang: Language):
     if user_lang == Language.RU:
         breakfast_label = "🌞 Завтрак"
         lunch_label = "🍲 Обед"
-        dinner_label = "🌙 Ужин"
+        dinner_label = "🍔 Обед(Фудкорт)"
     elif user_lang == Language.KO:
         breakfast_label = "🌞 아침"
         lunch_label = "🍲 점심"
-        dinner_label = "🌙 저녁"
+        dinner_label = "🍔 전심 (푸드코트)"
     else:  # Default to English
         breakfast_label = "🌞 Breakfast"
         lunch_label = "🍲 Lunch"
-        dinner_label = "🌙 Dinner"
+        dinner_label = "🍔 Lunch (Food Court)"
     
     # Get the meals from cache
     breakfast = local_cache.get(breakfast_index, "No data")
