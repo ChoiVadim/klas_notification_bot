@@ -12,6 +12,7 @@ redis
 pydantic-settings
 pydantic
 qrcode
+telegramify-markdown
 
 # Testing
 pytest==7.4.3

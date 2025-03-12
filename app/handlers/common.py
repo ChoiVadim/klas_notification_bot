@@ -161,7 +161,7 @@ async def other_message(message: types.Message):
                 "This command is not available in the chat. Please use the command from the bot menu."
             )
         else:
-            await message.reply(await generate_response(message.text))
+            await message.reply(await generate_response(message.text), parse_mode="MarkdownV2")
             logging.info(f"User {message.from_user.id} asked a question (LLM)")
 
     except Exception as e:
