@@ -2,6 +2,7 @@ import logging
 from app.bot import bot
 from aiogram import types
 
+
 def get_bot_commands(language_code: str) -> list:
     commands = {
         "ru": {
@@ -55,11 +56,14 @@ def get_bot_commands(language_code: str) -> list:
             "language": "🌍 Change the bot’s language (언어를 변경).",
             "start": "🏁 Show bot info (봇 정보를 보여줌).",
             "donate": "💰 Support the developer (개발자를 후원).",
-        }
-
+        },
     }
-    
-    return [types.BotCommand(command=command, description=description) for command, description in commands.get(language_code, {}).items()]
+
+    return [
+        types.BotCommand(command=command, description=description)
+        for command, description in commands.get(language_code, {}).items()
+    ]
+
 
 async def set_language_commands(language_code: str):
     commands = get_bot_commands(language_code)
@@ -68,11 +72,12 @@ async def set_language_commands(language_code: str):
     else:
         await bot.set_my_commands(commands, language_code=language_code)
 
+
 async def initialize_bot_menu():
     try:
         await bot.delete_my_commands()
-        language_codes = ['ru', 'ko', 'en', 'default']
-        
+        language_codes = ["ru", "ko", "en", "default"]
+
         for lang in language_codes:
             await set_language_commands(lang)
             logging.info(f"Commands set for language: {lang}")

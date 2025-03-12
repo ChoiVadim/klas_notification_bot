@@ -44,15 +44,13 @@ async def cmd_qr(message: types.Message):
 
 async def cmd_find_book(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id)) 
+        user_lang = await get_user_language(str(message.from_user.id))
         if not user_lang:
             user_lang = Language.EN
         logging.info(f"User {message.from_user.id} used /search command")
         query = message.text.split("/search")[1]
         if not query:
-            await message.answer(
-                Strings.get("please_enter_book_name", user_lang)
-            )
+            await message.answer(Strings.get("please_enter_book_name", user_lang))
             return
 
         list_of_books = await search_book(query)

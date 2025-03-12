@@ -11,7 +11,6 @@ async def main():
     await bot.send_message(chat_id=settings.ADMIN_ID, text="Bot started successfully!")
     await initialize_bot_menu()
 
-
     # Initialize database
     await init_db()
 

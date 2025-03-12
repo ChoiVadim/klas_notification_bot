@@ -1,19 +1,22 @@
 import logging
-from app.bot import bot
+
 from aiogram import Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import FSInputFile
 
+from app.bot import bot
 from app.strings import Strings, Language
 from app.services.llm import generate_response
 from app.keyboards import create_language_keyboard
 from app.database.database import get_user_language
+from app.utils.typing_animation import show_typing_action
+from app.utils.chat_history import get_chat_history, store_message_in_history
 
 
 async def cmd_start(message: types.Message):
     try:
         user_lang = await get_user_language(str(message.from_user.id))
-        
+
         if not user_lang:
             if message.from_user.language_code in ["ko", "ru", "en"]:
                 user_lang = Language(message.from_user.language_code)
@@ -161,7 +164,19 @@ async def other_message(message: types.Message):
                 "This command is not available in the chat. Please use the command from the bot menu."
             )
         else:
-            await message.reply(await generate_response(message.text), parse_mode="MarkdownV2")
+            # Get previous messages
+            previous_messages = get_chat_history(message.chat.id)
+
+            # Start "typing" action to show the bot is processing
+            async with show_typing_action(message.chat.id):
+                response = await generate_response(message.text, previous_messages)
+
+                # Store messages in history
+                store_message_in_history(message.chat.id, message.text, "user")
+                store_message_in_history(message.chat.id, response, "assistant")
+
+            # Send the response after typing is complete
+            await message.reply(response, parse_mode="MarkdownV2")
             logging.info(f"User {message.from_user.id} asked a question (LLM)")
 
     except Exception as e:
