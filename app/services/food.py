@@ -17,14 +17,36 @@ async def fetch_weekly_menu():
         async with session.get(url) as response:
             beautiful_soup = BeautifulSoup(await response.text(), "html.parser")
             table_scroll_box = beautiful_soup.find("div", {"class": "table-scroll-box"})
+            
             if table_scroll_box:
-                menu_items = [
-                    td.text.strip()
-                    for td in table_scroll_box.find_all("td", {"class": "vt al"})
-                ]
-                # Store the menu for each day in the cache
-                for i in range(len(menu_items)):
-                    local_cache[i] = f"{menu_items[i]}"
+                table = table_scroll_box.find("table", {"class": "tbl-list"})
+                if not table:
+                    return False
+                    
+                rows = table.find("tbody", {"class": "dietData"}).find_all("tr")
+                
+                meal_index = 0
+                for row in rows:
+                    cells = row.find_all("td", {"class": "vt al"})
+                    
+                    # Process the 5 weekdays
+                    for day_index, cell in enumerate(cells):
+                        pre_tag = cell.find("pre")
+                        if pre_tag:
+                            menu_text = pre_tag.get_text(strip=False)
+                            # Preserve the original format from the pre tags
+                            menu_text = "\r\n".join([line.strip() for line in menu_text.strip().split("\n") if line.strip()])
+                            
+                            # Store each meal in the local cache
+                            # 0-4: Monday-Friday breakfast
+                            # 5-9: Monday-Friday lunch
+                            # 10-14: Monday-Friday dinner
+                            cache_index = (meal_index * 5) + day_index
+                            local_cache[cache_index] = menu_text
+                    
+                    meal_index += 1
+                
+                return True
             else:
                 return False
 
@@ -70,7 +92,34 @@ async def get_menu_for_day(day_index: int, user_lang: Language):
         logging.info(f"Fetching weekly menu for {days_of_week[day_index]}")
         await fetch_weekly_menu()
 
-    return header + local_cache.get(day_index, "🚨 No data found 🚨")
+    # Calculate the indexes for breakfast, lunch, and dinner for this day
+    breakfast_index = day_index
+    lunch_index = day_index + 5
+    dinner_index = day_index + 10
+    
+    # Get meal labels based on language
+    if user_lang == Language.RU:
+        breakfast_label = "🌞 Завтрак"
+        lunch_label = "🍲 Обед"
+        dinner_label = "🌙 Ужин"
+    elif user_lang == Language.KO:
+        breakfast_label = "🌞 아침"
+        lunch_label = "🍲 점심"
+        dinner_label = "🌙 저녁"
+    else:  # Default to English
+        breakfast_label = "🌞 Breakfast"
+        lunch_label = "🍲 Lunch"
+        dinner_label = "🌙 Dinner"
+    
+    # Get the meals from cache
+    breakfast = local_cache.get(breakfast_index, "No data")
+    lunch = local_cache.get(lunch_index, "No data")
+    dinner = local_cache.get(dinner_index, "No data")
+    
+    # Combine into one formatted string
+    combined_menu = f"{breakfast_label}:\n{breakfast}\n\n{lunch_label}:\n{lunch}\n\n{dinner_label}:\n{dinner}"
+
+    return header + combined_menu
 
 
 async def get_today_school_food_menu(user_lang: Language):
@@ -92,6 +141,6 @@ async def get_school_food_info(user_lang: Language):
 
 
 if __name__ == "__main__":
-    print(asyncio.run(get_today_school_food_menu(Language.EN)))
-    print(asyncio.run(get_tomorrow_school_food_menu(Language.EN)))
-    print(local_cache)
+    from pprint import pprint
+    pprint(asyncio.run(get_today_school_food_menu(Language.KO)))
+    pprint(asyncio.run(get_tomorrow_school_food_menu(Language.KO)))
