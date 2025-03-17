@@ -7,7 +7,7 @@ from aiogram.types import FSInputFile
 from app.bot import bot
 from app.strings import Strings, Language
 from app.services.llm import generate_response
-from app.keyboards import create_language_keyboard
+from app.keyboards import create_language_keyboard, create_donation_keyboard
 from app.database.database import get_user_language
 from app.utils.typing_animation import show_typing_action
 from app.utils.chat_history import get_chat_history, store_message_in_history
@@ -58,15 +58,11 @@ async def cmd_donate(message: types.Message):
         if not user_lang:
             user_lang = Language.EN
 
-        await message.reply_invoice(
-            title=Strings.get("donate_title", user_lang),
-            description=Strings.get("donate_description", user_lang),
-            prices=[types.LabeledPrice(label="Donation", amount=1)],
-            currency="XTR",
-            payload="donate",
-            provider_token="",
+        await message.answer(
+            Strings.get("choose_donation_amount", user_lang),
+            reply_markup=create_donation_keyboard(user_lang)
         )
-        logging.info(f"User {message.from_user.id} started donation")
+        logging.info(f"User {message.from_user.id} opened donation menu")
     except Exception as e:
         logging.error(f"Error in cmd_donate: {e}")
         await message.answer(Strings.get("unexpected_error", user_lang))

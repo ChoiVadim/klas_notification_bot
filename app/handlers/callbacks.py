@@ -7,7 +7,7 @@ from app.services.food import (
     get_school_food_info,
 )
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
 
 from app.database.database import set_user_language, get_user_language
 from app.strings import Strings, Language
@@ -24,6 +24,36 @@ async def process_callback_query(callback_query: types.CallbackQuery):
         user_lang = await get_user_language(callback_query.from_user.id)
         if not user_lang:
             user_lang = Language.EN
+
+        # Handle donation amount selection
+        if callback_query.data.startswith("donate_"):
+            try:
+                # Extract the amount from the callback data
+                amount = int(callback_query.data.split("_")[1])
+                
+                # Send invoice with the selected amount
+                await callback_query.message.edit_text(
+                    f"Processing donation of {amount}⭐..."
+                )
+                
+                await callback_query.bot.send_invoice(
+                    chat_id=callback_query.from_user.id,
+                    title=Strings.get("donate_title", user_lang),
+                    description=Strings.get("donate_description", user_lang),
+                    prices=[types.LabeledPrice(label=f"Donation (${amount})", amount=amount)],
+                    currency="XTR",
+                    payload=f"donate_{amount}",
+                    provider_token="",  # Your payment provider token
+                )
+                
+                logging.info(f"User {callback_query.from_user.id} selected donation amount: ${amount}")
+                await callback_query.answer()
+                return
+                
+            except Exception as e:
+                logging.error(f"Error processing donation: {e}")
+                await callback_query.message.edit_text(Strings.get("unexpected_error", user_lang))
+                return
 
         if callback_query.data == "filter_food_info":
             await callback_query.message.edit_text(

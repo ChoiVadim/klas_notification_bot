@@ -55,3 +55,20 @@ def create_news_keyboard(user_lang: Language):
     builder.adjust(2)
 
     return builder.as_markup()
+
+
+def create_donation_keyboard(user_lang: Language):
+    builder = InlineKeyboardBuilder()
+    
+    # Add different donation amount options
+    builder.button(text="1⭐", callback_data="donate_1")
+    builder.button(text="5⭐", callback_data="donate_5")
+    builder.button(text="10⭐", callback_data="donate_10")
+    builder.button(text="20⭐", callback_data="donate_20")
+    builder.button(text="50⭐", callback_data="donate_50")
+    builder.button(text="100⭐", callback_data="donate_100")
+    
+    # Adjust to have 3 buttons per row
+    builder.adjust(3)
+    
+    return builder.as_markup()
