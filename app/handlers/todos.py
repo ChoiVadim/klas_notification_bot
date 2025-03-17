@@ -2,17 +2,15 @@ import logging
 from aiogram.filters import Command
 from aiogram import Dispatcher, types
 
-from app.database.database import get_user, get_user_language
+from app.strings import Strings
+from app.database.database import get_user
 from app.utils.encryption import decrypt_password
 from app.services.kw import KwangwoonUniversityApi
-from app.strings import Strings, Language
-
+from app.utils.language_utils import get_user_language_with_fallback
 
 async def show_all_assignments(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         logging.info(f"User {message.from_user.id} used /show command")
         user_id = str(message.from_user.id)

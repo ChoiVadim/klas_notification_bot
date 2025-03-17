@@ -2,16 +2,14 @@ import logging
 from aiogram import Dispatcher, types
 from aiogram.filters import Command
 
+from app.strings import Strings
 from app.keyboards import create_news_keyboard
-from app.strings import Strings, Language
-from app.database.database import get_user_language
+from app.utils.language_utils import get_user_language_with_fallback
 
 
 async def cmd_news(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         logging.info(f"User {message.from_user.id} used /news command")
         await message.answer(

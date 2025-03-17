@@ -7,17 +7,16 @@ from aiogram.filters import Command
 from aiogram.types import FSInputFile
 
 from app.services.qr import get_qr
-from app.strings import Strings, Language
-from app.database.database import get_library_user, get_user_language
+from app.strings import Strings
+from app.database.database import get_library_user
 from app.utils.encryption import decrypt_password
 from app.services.library import search_book
+from app.utils.language_utils import get_user_language_with_fallback
 
 
 async def cmd_qr(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
         user = await get_library_user(str(message.from_user.id))
         if not user:
             await message.answer(Strings.get("library_user_not_found", user_lang))
@@ -44,9 +43,7 @@ async def cmd_qr(message: types.Message):
 
 async def cmd_find_book(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
         logging.info(f"User {message.from_user.id} used /search command")
         query = message.text.split("/search")[1]
         if not query:

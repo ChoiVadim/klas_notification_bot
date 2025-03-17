@@ -2,17 +2,15 @@ import logging
 from aiogram import Dispatcher, types
 from aiogram.filters import Command
 
-from app.strings import Strings, Language
+from app.strings import Strings
 from app.keyboards import create_food_menu_keyboard
 from app.services.food import get_today_school_food_menu
-from app.database.database import get_user_language
+from app.utils.language_utils import get_user_language_with_fallback
 
 
 async def show_school_food_menu(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         await message.answer(
             await get_today_school_food_menu(user_lang),

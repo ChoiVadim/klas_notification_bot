@@ -11,9 +11,9 @@ from app.database.database import (
     delete_user,
     save_user,
     save_library_user,
-    get_user_language,
 )
 from app.strings import Strings, Language
+from app.utils.language_utils import get_user_language_with_fallback
 
 
 # Define states for registration
@@ -30,9 +30,7 @@ class LibraryRegistrationStates(StatesGroup):
 
 async def cmd_register(message: types.Message, state: FSMContext):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         await state.set_state(RegistrationStates.waiting_for_username)
         await message.answer(Strings.get("enter_username", user_lang))
@@ -45,9 +43,7 @@ async def cmd_register(message: types.Message, state: FSMContext):
 
 async def process_username(message: types.Message, state: FSMContext):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         await state.update_data(username=message.text)
         await state.set_state(RegistrationStates.waiting_for_password)
@@ -61,9 +57,7 @@ async def process_username(message: types.Message, state: FSMContext):
 
 async def process_password(message: types.Message, state: FSMContext):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         user_data = await state.get_data()
         username = user_data["username"]
@@ -100,9 +94,7 @@ async def process_password(message: types.Message, state: FSMContext):
 
 async def cmd_unregister(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         await delete_user(str(message.from_user.id))
         await message.answer(Strings.get("unregistered", user_lang))
@@ -115,9 +107,7 @@ async def cmd_unregister(message: types.Message):
 
 async def cmd_library_register(message: types.Message, state: FSMContext):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         await state.set_state(LibraryRegistrationStates.waiting_for_username)
         await message.answer(Strings.get("library_enter_username", user_lang))
@@ -129,9 +119,7 @@ async def cmd_library_register(message: types.Message, state: FSMContext):
 
 async def process_library_username(message: types.Message, state: FSMContext):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         await state.update_data(username=message.text)
         await state.set_state(LibraryRegistrationStates.waiting_for_password)
@@ -144,9 +132,7 @@ async def process_library_username(message: types.Message, state: FSMContext):
 
 async def process_library_password(message: types.Message, state: FSMContext):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         await state.update_data(password=message.text)
         await state.set_state(LibraryRegistrationStates.waiting_for_phone_number)
@@ -159,9 +145,7 @@ async def process_library_password(message: types.Message, state: FSMContext):
 
 async def process_library_phone_number(message: types.Message, state: FSMContext):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         user_data = await state.get_data()
         username = user_data["username"]

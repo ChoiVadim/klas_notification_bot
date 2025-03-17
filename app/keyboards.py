@@ -14,9 +14,9 @@ def create_todos_keyboard():
 
 def create_language_keyboard():
     language_keyboard = InlineKeyboardBuilder()
-    language_keyboard.button(text="English", callback_data="language_en")
-    language_keyboard.button(text="한국어", callback_data="language_ko")
-    language_keyboard.button(text="Русский", callback_data="language_ru")
+    language_keyboard.button(text=Language.EN.value, callback_data="language_en")
+    language_keyboard.button(text=Language.KO.value, callback_data="language_ko")
+    language_keyboard.button(text=Language.RU.value, callback_data="language_ru")
     language_keyboard.adjust(1)
     return language_keyboard.as_markup()
 

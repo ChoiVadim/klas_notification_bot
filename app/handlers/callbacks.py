@@ -7,9 +7,9 @@ from app.services.food import (
     get_school_food_info,
 )
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from app.database.database import set_user_language, get_user_language
+from app.database.database import set_user_language
 from app.strings import Strings, Language
 from app.services.news import get_news
 from app.keyboards import (
@@ -17,13 +17,12 @@ from app.keyboards import (
     create_back_to_food_menu_keyboard,
     create_news_keyboard,
 )
+from app.utils.language_utils import get_user_language_with_fallback
 
 
 async def process_callback_query(callback_query: types.CallbackQuery):
     try:
-        user_lang = await get_user_language(callback_query.from_user.id)
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(callback_query)
 
         # Handle donation amount selection
         if callback_query.data.startswith("donate_"):
@@ -78,17 +77,17 @@ async def process_callback_query(callback_query: types.CallbackQuery):
 
         # Language change
         elif callback_query.data == "language_en":
-            await set_user_language(callback_query.from_user.id, "en")
+            await set_user_language(callback_query.from_user.id, "EN")
             await callback_query.message.edit_text(
                 Strings.get("language_changed", Language.EN),
             )
         elif callback_query.data == "language_ko":
-            await set_user_language(callback_query.from_user.id, "ko")
+            await set_user_language(callback_query.from_user.id, "KO")
             await callback_query.message.edit_text(
                 Strings.get("language_changed", Language.KO),
             )
         elif callback_query.data == "language_ru":
-            await set_user_language(callback_query.from_user.id, "ru")
+            await set_user_language(callback_query.from_user.id, "RU")
             await callback_query.message.edit_text(
                 Strings.get("language_changed", Language.RU),
             )

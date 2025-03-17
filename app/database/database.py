@@ -62,8 +62,15 @@ async def set_user_language(user_id: str, language: str):
 async def get_user_language(user_id: str):
     async with AsyncSessionLocal() as session:
         user = await session.get(User, user_id)
-        if user:
-            return Language(user.language)
+        if user and user.language:
+            try:
+                return Language[user.language]
+            except (KeyError, ValueError):
+                # Fallback for handling legacy language codes
+                language_map = {"en": "EN", "ko": "KO", "ru": "RU"}
+                if user.language in language_map:
+                    return Language[language_map[user.language]]
+                return Language.EN
         return None
 
 

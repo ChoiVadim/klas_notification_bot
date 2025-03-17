@@ -5,23 +5,17 @@ from aiogram.filters import Command
 from aiogram.types import FSInputFile
 
 from app.bot import bot
-from app.strings import Strings, Language
+from app.strings import Strings
 from app.services.llm import generate_response
 from app.keyboards import create_language_keyboard, create_donation_keyboard
-from app.database.database import get_user_language
 from app.utils.typing_animation import show_typing_action
 from app.utils.chat_history import get_chat_history, store_message_in_history
+from app.utils.language_utils import get_user_language_with_fallback
 
 
 async def cmd_start(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-
-        if not user_lang:
-            if message.from_user.language_code in ["ko", "ru", "en"]:
-                user_lang = Language(message.from_user.language_code)
-            else:
-                user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         caption = Strings.get("welcome", user_lang, name=message.from_user.first_name)
         photo = FSInputFile("images/logo.jpg")
@@ -37,26 +31,19 @@ async def cmd_start(message: types.Message):
 
 async def cmd_language(message: types.Message):
     try:
-        status = await get_user_language(str(message.from_user.id))
-        if not status:
-            await message.answer(
-                Strings.get("language_change_failed", Language.EN),
-            )
-
-        else:
-            await message.answer(
-                "🇺🇸 Choose your language\n🇰🇷 언어 선택\n🇷🇺 Выберите язык",
-                reply_markup=create_language_keyboard(),
-            )
+        user_lang = await get_user_language_with_fallback(message)
+        
+        await message.answer(
+            Strings.get("language_choice", user_lang),
+            reply_markup=create_language_keyboard(),
+        )
     except Exception as e:
         logging.error(f"Error in cmd_language: {e}")
 
 
 async def cmd_donate(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         await message.answer(
             Strings.get("choose_donation_amount", user_lang),
@@ -70,9 +57,7 @@ async def cmd_donate(message: types.Message):
 
 async def cmd_refund(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         # Check if the message is a reply to a payment message
         if (
@@ -110,9 +95,7 @@ async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery)
 # TODO: Add voice support and handle other content types
 async def other_message(message: types.Message):
     try:
-        user_lang = await get_user_language(str(message.from_user.id))
-        if not user_lang:
-            user_lang = Language.EN
+        user_lang = await get_user_language_with_fallback(message)
 
         if message.content_type == types.ContentType.SUCCESSFUL_PAYMENT:
             await message.answer(Strings.get("successful_payment", user_lang))

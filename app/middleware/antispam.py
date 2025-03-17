@@ -1,9 +1,11 @@
 import time
 import logging
+
 from aiogram.types import Message
 from aiogram import BaseMiddleware
-from app.strings import Strings, Language
-from app.database.database import get_user_language
+
+from app.strings import Strings
+from app.utils.language_utils import get_user_language_with_fallback
 
 
 class AntiSpamMiddleware(BaseMiddleware):
@@ -16,9 +18,7 @@ class AntiSpamMiddleware(BaseMiddleware):
         try:
             user_id = event.from_user.id
             current_time = time.time()
-            user_lang = await get_user_language(str(user_id))
-            if not user_lang:
-                user_lang = Language.EN
+            user_lang = await get_user_language_with_fallback(event)
 
             # Check if the user has sent a message recently
             if user_id in self.user_last_message_time:
