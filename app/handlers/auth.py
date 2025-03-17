@@ -74,7 +74,7 @@ async def process_password(message: types.Message, state: FSMContext):
             # Save user credentials to the database
             user_id = str(message.from_user.id)
             encrypted_password = encrypt_password(password)
-            if await save_user(user_id, username, encrypted_password):
+            if await save_user(user_id, username, encrypted_password, user_lang):
                 await message.answer(Strings.get("registration_successful", user_lang))
                 logging.info(f"User {user_id} registered successfully")
             else:

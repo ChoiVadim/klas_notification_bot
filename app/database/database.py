@@ -24,7 +24,7 @@ async def init_db():
     logging.info("Database initialized successfully")
 
 
-async def save_user(user_id: str, username: str, encrypted_password: str):
+async def save_user(user_id: str, username: str, encrypted_password: str, language: Language):
     """Save or update user in database"""
     async with AsyncSessionLocal() as session:
         async with session.begin():
@@ -38,6 +38,7 @@ async def save_user(user_id: str, username: str, encrypted_password: str):
                         user_id=user_id,
                         username=username,
                         encrypted_password=encrypted_password,
+                        language=language.name,
                     )
                     session.add(user)
                 await session.commit()

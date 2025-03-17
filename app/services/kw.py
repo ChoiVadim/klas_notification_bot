@@ -417,13 +417,26 @@ class KwangwoonUniversityApi:
         student_info = await self._make_student_info_request(
             "https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreHakjukInfo.do",
         )
+        
+        if not student_info:
+            logging.error("Failed to retrieve student info")
+            return None
+            
         grades = await self._make_student_info_request(
             "https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreSungjukTot.do",
         )
+        
+        if not grades:
+            logging.error("Failed to retrieve grades")
+            return None
 
         grades_for_each_semester = await self._make_student_info_request(
             "https://klas.kw.ac.kr/std/cps/inqire/AtnlcScreSungjukInfo.do",
         )
+        
+        if not grades_for_each_semester:
+            logging.error("Failed to retrieve grades for each semester")
+            return None
 
         semester = 0
         for semester_info in grades_for_each_semester:
@@ -431,29 +444,35 @@ class KwangwoonUniversityApi:
                 continue
             semester += 1
 
-        grade = student_info.get("grade")
-        student_id = student_info.get("hakbun")
-        major = student_info.get("hakgwa")
-        student_name = student_info.get("kname")
-        student_credits = grades.get("chidukHakjum")
-        elective_credits = grades.get("cultureChidukHakjum")
-        major_credits = grades.get("majorChidukHakjum")
-        average_score = grades.get("jaechulScoresum")
+        grade = student_info.get("grade", "N/A")
+        student_id = student_info.get("hakbun", "N/A")
+        major = student_info.get("hakgwa", "N/A")
+        student_name = student_info.get("kname", "N/A")
+        student_credits = grades.get("chidukHakjum", 0)
+        elective_credits = grades.get("cultureChidukHakjum", 0)
+        major_credits = grades.get("majorChidukHakjum", 0)
+        average_score = grades.get("jaechulScoresum", "N/A")
 
-        if "소프트웨어" in major:
+        if major and "소프트웨어" in major:
             total_credits = 133
             total_major_credits = 60
             total_elective_credits = 30
 
-            credits_ratio = round((student_credits / total_credits) * 100, 2)
-            major_credits_ratio = round((major_credits / total_major_credits) * 100, 2)
+            try:
+                credits_ratio = round((student_credits / total_credits) * 100, 2)
+                major_credits_ratio = round((major_credits / total_major_credits) * 100, 2)
 
-            credits_for_each_semester = round(
-                (total_credits - student_credits) / (4 * 2 - semester + 1), 2
-            )
-            major_credits_for_each_semester = round(
-                (total_major_credits - major_credits) / (4 * 2 - semester + 1), 2
-            )
+                credits_for_each_semester = round(
+                    (total_credits - student_credits) / max(1, (4 * 2 - semester + 1)), 2
+                )
+                major_credits_for_each_semester = round(
+                    (total_major_credits - major_credits) / max(1, (4 * 2 - semester + 1)), 2
+                )
+            except (ZeroDivisionError, TypeError):
+                credits_ratio = "N/A"
+                major_credits_ratio = "N/A"
+                credits_for_each_semester = "N/A"
+                major_credits_for_each_semester = "N/A"
         else:
             total_credits = "N/A"
             total_major_credits = "N/A"
@@ -496,16 +515,26 @@ class KwangwoonUniversityApi:
             "selectedYearhakgi": "",
             "selectedSubj": "",
         }
-        async with self.session.post(
-            "https://klas.kw.ac.kr/std/sys/optrn/MyNumberQrStdPage.do",
-            cookies=self.cookies,
-            headers=self.headers,
-            json=body,
-        ) as response:
-            if response.status == 200:
-                soup = BeautifulSoup(await response.text(), "html.parser")
-                img_tag = soup.select_one("#appModule > div:nth-child(2) > img")
-                return img_tag["src"]
+        try:
+            async with self.session.post(
+                "https://klas.kw.ac.kr/std/sys/optrn/MyNumberQrStdPage.do",
+                cookies=self.cookies,
+                headers=self.headers,
+                json=body,
+            ) as response:
+                if response.status == 200:
+                    soup = BeautifulSoup(await response.text(), "html.parser")
+                    # Update the selector based on the actual HTML structure
+                    img_tag = soup.select_one(".col-sm-5.text-center p.p-10 img")
+                    if not img_tag:
+                        # Try alternative selector
+                        img_tag = soup.select_one("img[alt='faceofperson']")
+                    if img_tag and img_tag.has_attr('src'):
+                        return img_tag.get("src")
+                    logging.warning("Could not find student photo image tag")
+        except Exception as e:
+            logging.error(f"Failed to retrieve student photo URL: {e}")
+        return None
 
 
 if __name__ == "__main__":
@@ -517,6 +546,10 @@ if __name__ == "__main__":
             password = input("Enter your password: ")
             await student.login(username, password)
             todo_list = await student.get_todo_list()
-            print(todo_list)
+            student_info = await student.get_student_info()
+            student_photo_url = await student.get_student_photo_url()
+            print(student_photo_url)
+            print(student_info)
+            # print(todo_list)
 
     asyncio.run(main())

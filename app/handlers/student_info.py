@@ -6,7 +6,7 @@ from aiogram import Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import FSInputFile
 
-from app.strings import Strings
+from app.strings import Strings, Language
 from app.database.database import get_user
 from app.services.kw import KwangwoonUniversityApi
 from app.utils.encryption import decrypt_password
@@ -14,11 +14,11 @@ from app.utils.language_utils import get_user_language_with_fallback
 
 async def cmd_info(message: types.Message):
     try:
+        logging.info(f"User {message.from_user.id} used /info command")
         user_lang = await get_user_language_with_fallback(message)
 
-        logging.info(f"User {message.from_user.id} used /info command")
-        # Check if user is registered
         user = await get_user(str(message.from_user.id))
+
         if not user:
             await message.answer(Strings.get("need_to_register", user_lang))
             return
@@ -39,13 +39,12 @@ async def cmd_info(message: types.Message):
 
             if not photo_path.exists():
                 student_photo_url = await kw.get_student_photo_url()
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(student_photo_url) as response:
-                        if response.status == 200:
-                            with open(photo_path, "wb") as f:
-                                f.write(await response.read())
-                        else:
-                            photo_path = "images/logo.jpg"
+                if student_photo_url:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(student_photo_url) as response:
+                            if response.status == 200:
+                                with open(photo_path, "wb") as f:
+                                    f.write(await response.read())
 
             student_photo_file = FSInputFile(str(photo_path))
 
@@ -70,7 +69,14 @@ async def cmd_info(message: types.Message):
                 ],
             )
 
-            await message.reply_photo(photo=student_photo_file, caption=msg)
+            try:
+                if photo_path.exists():
+                    await message.reply_photo(photo=student_photo_file, caption=msg)
+                else:
+                    await message.reply(msg)
+            except Exception as e:
+                logging.error(f"Error sending student info with photo: {e}")
+                await message.reply(msg)
 
     except Exception as e:
         logging.error(f"Unexpected error in cmd_info: {e}")

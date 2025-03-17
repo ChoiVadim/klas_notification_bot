@@ -14,8 +14,8 @@ class Strings:
             "test_string": "Welcome, Test User!",
             "nonexistent_key": "Nonexistent key",
             "welcome": """Welcome, {name}! 👋
-This friendly bot is here to help Kwangwoon University students stay organized and don't miss anything important 🏫
-I'll keep track of your assignments and send you gentle reminders when deadlines are approaching (within 24 hours), so you'll never miss anything important 🧭
+I'm a helpful bot for Kwangwoon University students 🏫
+I track your assignments and send reminders for upcoming deadlines 🧭
 
 Here's how to get started:
 • /register - Set up your account
@@ -25,17 +25,11 @@ Here's how to get started:
 • /search book_name - Find books in the library 🔍
 
 You can also chat with me directly about university-related questions!
+Find more helpful commands by tapping the menu button at the bottom left of your screen!
 
-Find more helpful commands by tapping the menu button at the bottom left of your screen
-
-❗ Registration is required for core features. Your password and username are securely encrypted.
-Your privacy is our priority - all information is stored in a non-readable format.
-
-Your feedback helps make this bot better for everyone!
-Feel free to send suggestions to @tsoivadim 💬
-I'll implement improvements as quickly as possible!
-
-Made with ❤️ by @tsoivadim""",
+If something is not working or you have a problem, feel free to contact me @tsoivadim 💬
+I'll help you out quickly!
+""",
             "enter_username": "🎓 Please enter your student ID (I'll keep this secure)",
             "enter_password": "🔑 Please enter your KLAS password (this will be encrypted)",
             "enter_phone_number": "📱 Please enter your phone number",
@@ -43,15 +37,15 @@ Made with ❤️ by @tsoivadim""",
             "library_enter_password": "🔑 Please enter your library account password",
             "invalid_credentials": "Hmm, those credentials don't seem to match our records. Please check your username and password, then try /register again 🔄",
             "library_login_failed": "We couldn't log you into the library with those details. Please verify your username, password and phone number, then try /lregister again 🔄",
-            "registration_successful": "🎉 Registration complete! You're all set to receive helpful notifications. Try using /show or /info to explore what's available",
-            "library_registration_successful": "🎉 Library access granted! Now you can use cool library features like /qr",
-            "registration_failed": "We couldn't complete your registration. Please double-check your information and try /register again 🔄",
-            "failed_to_save_credentials": "We had a small hiccup saving your credentials. Please try again in a moment.",
-            "unregistered": "You've been successfully unregistered from the bot. You can register again anytime! 👋",
-            "need_to_register": "This feature requires registration. Use /register to get started - it only takes a minute! ✨",
-            "no_assignments": "🎉 Great news! You're all caught up with no pending assignments right now",
-            "failed_to_fetch_student_info": "We couldn't retrieve your student information right now. Let's try again later.",
-            "unexpected_error": "Oops! We hit a small bump. Let's try again in a moment! 🔄",
+            "registration_successful": "🎉 Registration complete! You'll now receive helpful notifications. Explore available features with /show or /info",
+            "library_registration_successful": "🎉 Library access granted! You can now use the awesome library features, such as /qr",
+            "registration_failed": "We couldn't complete your registration. Please check your details and try again with /register 🔄",
+            "failed_to_save_credentials": "We had a small issue saving your credentials. Please try again later.",
+            "unregistered": "You've successfully unregistered from the bot. You can always register again! 👋",
+            "need_to_register": "This feature requires registration. Start with /register - it only takes a minute! ✨",
+            "no_assignments": "🎉 Great news! You have no upcoming assignments",
+            "failed_to_fetch_student_info": "We couldn't retrieve your student information right now. Let's try again later!",
+            "unexpected_error": "Oops! We encountered a small issue. Please try again in a few moments! 🔄",
             "callback_error": "Please tap the buttons one at a time 😊",
             "donate_title": "Support this project with a coffee! ☕",
             "donate_description": "Your contribution helps keep this bot running and improving. Thank you for your support!",
@@ -154,11 +148,14 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "school_food_menu_header": "🍴 {day}'s School Food Menu 🍴\n\n",
             "chat_about_university": "Feel free to ask me any questions about the university! I can help with information about campus facilities, academic policies, and more.",
         },
+
+
+        
         Language.KO: {
             "test_string": "환영합니다!",
             "welcome": """안녕하세요, {name}님! 👋
-광운대학교 학생들을 위한 친근한 도우미 봇입니다 🏫
-저는 여러분의 모든 과제를 추적하고 마감일이 24시간 이내로 다가오면 알림을 보내드려요. 중요한 과제를 놓치지 않도록 도와드릴게요 🧭
+광운대학교 학생들을 위한 도우미 봇입니다 🏫
+과제를 추적하고 마감일 알림을 보내드려요 🧭
 
 시작하는 방법:
 • /register - 계정을 등록하세요
@@ -167,34 +164,27 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
 • /show - 예정된 모든 과제를 확인하세요
 • /search 책이름 - 도서관에서 책을 검색하세요 🔍
 
-저와 직접 대화하면서 대학 관련 질문을 하실 수도 있어요! 캠퍼스 시설, 학사 정책, 또는 광운대학교에 대한 일반적인 정보에 대해 물어보세요 💬
-
+저와 직접 대화하면서 대학 관련 질문을 하실 수도 있어요!
 더 많은 유용한 명령어는 화면 왼쪽 하단의 메뉴 버튼에서 확인하실 수 있어요
 
-❗ 모든 기능을 사용하려면 간단한 등록이 필요합니다. 비밀번호와 사용자 이름은 안전하게 암호화됩니다.
-개인정보 보호는 저희의 최우선 과제입니다 - 모든 정보는 읽을 수 없는 형태로 저장됩니다.
-
-여러분의 피드백은 이 봇을 모두에게 더 좋게 만듭니다!
-제안이나 의견이 있으시면 @tsoivadim 에게 보내주세요 💬
-최대한 빨리 개선사항을 적용하겠습니다!
-
-@tsoivadim 이 ❤️으로 만들었습니다""",
+무언가 작동하지 않거나 문제가 있으시면 @tsoivadim 에게 연락주세요 💬
+빠르게 도와드리겠습니다!""",
             "enter_username": "🎓 학번을 입력해주세요 (안전하게 보관됩니다)",
             "enter_password": "🔑 KLAS 비밀번호를 입력해주세요 (암호화됩니다)",
             "enter_phone_number": "📱 전화번호를 입력해주세요",
             "library_enter_username": "🎓 도서관 계정 사용자 이름을 입력해주세요",
             "library_enter_password": "🔑 도서관 계정 비밀번호를 입력해주세요",
-            "invalid_credentials": "입력하신 정보가 기록과 일치하지 않네요. 사용자 이름과 비밀번호를 확인하고 /register로 다시 시도해주세요 🔄",
-            "library_login_failed": "입력하신 정보로 도서관 로그인을 할 수 없었어요. 사용자 이름, 비밀번호, 전화번호를 확인하고 /lregister로 다시 시도해주세요 🔄",
-            "registration_successful": "🎉 등록 완료! 이제 유용한 알림을 받으실 수 있어요. /show나 /info 명령어로 이용 가능한 기능을 살펴보세요",
-            "library_registration_successful": "🎉 도서관 접근 권한이 부여되었습니다! 이제 /qr과 같은 멋진 도서관 기능을 사용하실 수 있어요",
-            "registration_failed": "등록을 완료할 수 없었어요. 정보를 다시 확인하고 /register로 다시 시도해주세요 🔄",
-            "failed_to_save_credentials": "정보 저장 중 작은 문제가 발생했어요. 잠시 후 다시 시도해주세요.",
-            "unregistered": "봇에서 성공적으로 등록 해제되었습니다. 언제든지 다시 등록하실 수 있어요! 👋",
-            "need_to_register": "이 기능은 등록이 필요합니다. /register로 시작하세요 - 단 1분이면 됩니다! ✨",
-            "no_assignments": "🎉 좋은 소식이에요! 현재 예정된 과제가 없습니다",
-            "failed_to_fetch_student_info": "지금은 학생 정보를 가져올 수 없었어요. 나중에 다시 시도해볼까요?",
-            "unexpected_error": "이런! 작은 문제가 발생했어요. 잠시 후에 다시 시도해보세요! 🔄",
+            "invalid_credentials": "입력하신 정보가 기록과 일치하지 않네요. 사용자 이름과 비밀번호를 확인하고 /register 로 다시 시도해주세요 🔄",
+            "library_login_failed": "입력하신 정보로 도서관 로그인을 할 수 없었어요. 사용자 이름, 비밀번호, 전화번호를 확인하고 /lregister 로 다시 시도해주세요 🔄",
+            "registration_successful": "🎉 등록이 완료되었습니다! 이제 유용한 알림을 받을 수 있습니다. /show 또는 /info 명령어로 기능을 살펴보세요",
+            "library_registration_successful": "🎉 도서관 접근 권한이 부여되었습니다! 이제 /qr과 같은 도서관 기능을 사용할 수 있습니다",
+            "registration_failed": "등록을 완료할 수 없습니다. 세부 정보를 확인하고 /register로 다시 시도해 주세요 🔄",
+            "failed_to_save_credentials": "자격 증명을 저장하는 데 작은 문제가 있었습니다. 나중에 다시 시도해 주세요.",
+            "unregistered": "봇에서 성공적으로 등록이 취소되었습니다. 언제든지 다시 등록할 수 있습니다! 👋",
+            "need_to_register": "이 기능을 사용하려면 등록이 필요합니다. /register로 시작하세요 - 단 1분이면 됩니다! ✨",
+            "no_assignments": "🎉 좋은 소식! 예정된 과제가 없습니다",
+            "failed_to_fetch_student_info": "지금은 학생 정보를 가져올 수 없습니다. 나중에 다시 시도해 주세요!",
+            "unexpected_error": "이런! 작은 문제가 발생했습니다. 잠시 후 다시 시도해 주세요! 🔄",
             "callback_error": "버튼을 한 번에 하나씩만 눌러주세요 😊",
             "donate_title": "프로젝트를 커피 한 잔으로 응원해주세요! ☕",
             "donate_description": "여러분의 기부는 이 봇이 계속 운영되고 개선되는 데 도움이 됩니다. 지원해주셔서 감사합니다!",
@@ -244,7 +234,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "info": "ℹ️ 더 알아보기",
             "read_more": "📖 전체 기사 읽기",
             "language_changed": "✅ 완벽해요! 언어 설정이 업데이트되었습니다.",
-            "language_change_failed": "언어 설정을 저장하려면 먼저 /register를 사용해주세요",
+            "language_change_failed": "언어 설정을 저장하려면 먼저 /register 를 사용해주세요",
             "language_choice": "🌐 원하는 언어를 선택하세요",
             "school_food_menu_header": "🍴 {day} 식사 옵션 🍴\n\n",
         },
@@ -252,7 +242,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "test_string": "Добро пожаловать!",
             "welcome": """Привет, {name}! 👋
 Я бот-помощник для студентов университета Квангвун 🏫
-Я отслеживаю все ваши задания и отправляю уведомления, когда до сдачи остается меньше 24 часов. Я помогу вам не пропустить важные сроки! 🧭
+Я отслеживаю задания и отправляю уведомления о сроках 🧭
 
 Как начать:
 • /register - зарегистрируйте свой аккаунт
@@ -261,24 +251,18 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
 • /show - просмотрите все предстоящие задания
 • /search название_книги - найдите книгу в библиотеке 🔍
 
-Вы также можете напрямую общаться со мной и задавать вопросы об университете! Спрашивайте о кампусе, академических правилах или получите общую информацию об университете Квангвун 💬
+Вы также можете напрямую общаться со мной и задавать вопросы об университете!
+Больше полезных команд доступно в меню в левом нижнем углу экрана!
 
-Больше полезных команд доступно в меню в левом нижнем углу экрана
-
-❗ Для использования всех функций требуется простая регистрация. Ваши пароль и имя пользователя надежно шифруются.
-Ваша конфиденциальность - наш приоритет - все данные хранятся в нечитаемом формате.
-
-Ваши отзывы помогают сделать этого бота лучше для всех!
-Отправляйте предложения и комментарии @tsoivadim 💬
-Я буду стараться внедрять улучшения как можно скорее!
-
-Создано с ❤️ @tsoivadim""",
+Если что-то не работает или у вас есть проблемы, напишите мне @tsoivadim 💬
+Я исправлю всё быстро!
+""",
             "enter_username": "🎓 Введите ваш студенческий номер (хранится безопасно)",
             "enter_password": "🔑 Введите ваш пароль от KLAS (будет зашифрован)",
             "enter_phone_number": "📱 Введите ваш номер телефона",
             "library_enter_username": "🎓 Введите имя пользователя библиотечного аккаунта",
             "library_enter_password": "🔑 Введите пароль от библиотечного аккаунта",
-            "invalid_credentials": "Данные не совпадают с нашими записями. Проверьте имя пользователя и пароль, затем попробуйте снова с /register 🔄",
+            "invalid_credentials": "Данные не совпадают с данными Университета. Проверьте имя пользователя и пароль, затем попробуйте снова с /register 🔄",
             "library_login_failed": "Не удалось войти в библиотеку с указанными данными. Проверьте имя пользователя, пароль и номер телефона, затем попробуйте снова с /lregister 🔄",
             "registration_successful": "🎉 Регистрация завершена! Теперь вы будете получать полезные уведомления. Изучите доступные функции с помощью /show или /info",
             "library_registration_successful": "🎉 Доступ к библиотеке предоставлен! Теперь вы можете использовать замечательные библиотечные функции, такие как /qr",
@@ -320,13 +304,13 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
 • Кредиты по выборным: {elective_credits_total}
 • Средний балл: {average_score} 📈""",
             "school_food_info": """
-🍳 <Утренняя акция - 1000 вон>
+🍳 <Завтрак - 1000 вон>
 Доступно на 2-м этаже 복지관 с 8:30 до 9:30 утра
 
-🍔 <Обеденные варианты - 6000 вон> 
+🍔 <Обед - 6000 вон> 
 Доступно на 2-м этаже 복지관 с 11:30 до 14:00
 
-🍴 <Разнообразие фудкорта - 8000 вон>
+🍴 <Обед (фудкорт) - 8000 вон>
 Доступно в подвале 연구관 с 11:30 до 14:00
 
 Все варианты в стиле шведского стола! Заплатите один раз и наслаждайтесь сколько хотите 🍴
