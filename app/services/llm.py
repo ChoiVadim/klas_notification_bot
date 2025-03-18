@@ -46,6 +46,12 @@ async def generate_response(message: str, chat_history: list[dict]):
             "name": "Kwangwoon University",
             "location": "Seoul, South Korea",
             "website": "https://www.kw.ac.kr/",
+            "library-website": "https://kupis.kw.ac.kr/",
+            "website-for-foreigners": "https://oia.kw.ac.kr/",
+            "university-map": "https://www.kw.ac.kr/ko/tour/tour01.jsp",
+            "phone": "+82-2-940-5114",
+            "address": "서울 노원구 광운로 20",
+            "buses": "261, 1017, 1137, 1140"
         },
         "faq": [
             {
