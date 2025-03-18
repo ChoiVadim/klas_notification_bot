@@ -47,6 +47,9 @@ async def check_todos():
 
     while True:
         try:
+            # Wait before checking notifications to avoid immediate execution on bot startup
+            await asyncio.sleep(settings.NOTIFICATION_CHECK_INTERVAL)
+            
             users = await get_all_users()
 
             for user in users:
@@ -163,8 +166,7 @@ async def check_todos():
                     continue  # Skip to next user if there's an error
 
             logging.info(
-                f"All notifications sent successfully, waiting for {settings.NOTIFICATION_CHECK_INTERVAL} seconds"
+                f"All notifications sent successfully, waiting for next interval"
             )
-            await asyncio.sleep(settings.NOTIFICATION_CHECK_INTERVAL)
         except Exception as e:
             logging.error(f"Error in check_todos: {e}")
