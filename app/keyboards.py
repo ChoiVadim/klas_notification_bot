@@ -1,7 +1,23 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 from app.strings import Strings, Language
+
+
+def create_quick_access_keyboard(user_lang: Language):
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text="📋 Todos"),
+                KeyboardButton(text="🔍 QR"),
+            ]
+        ],
+        resize_keyboard=True,
+        is_persistent=True,
+        one_time_keyboard=False,
+        input_field_placeholder=Strings.get("input_field_placeholder", user_lang)
+    )
+    return keyboard
 
 
 def create_todos_keyboard():

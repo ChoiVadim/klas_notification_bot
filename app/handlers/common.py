@@ -7,7 +7,7 @@ from aiogram.types import FSInputFile
 from app.bot import bot
 from app.strings import Strings
 from app.services.llm import generate_response
-from app.keyboards import create_language_keyboard, create_donation_keyboard
+from app.keyboards import create_language_keyboard, create_donation_keyboard, create_quick_access_keyboard
 from app.utils.typing_animation import show_typing_action
 from app.utils.chat_history import get_chat_history, store_message_in_history
 from app.utils.language_utils import get_user_language_with_fallback
@@ -22,6 +22,7 @@ async def cmd_start(message: types.Message):
         await message.reply_photo(
             photo=photo,
             caption=caption,
+            reply_markup=create_quick_access_keyboard(user_lang),
         )
         logging.info(f"User {message.from_user.id} started the bot!")
     except Exception as e:
@@ -103,6 +104,17 @@ async def other_message(message: types.Message):
         elif message.content_type == types.ContentType.REFUNDED_PAYMENT:
             pass
 
+        # Handle quick access keyboard button presses
+        elif message.text == "🔍 QR":
+            from app.handlers.library import cmd_qr
+            await cmd_qr(message)
+            return
+            
+        elif message.text == "📋 Todos":
+            from app.handlers.todos import show_all_assignments
+            await show_all_assignments(message)
+            return
+            
         elif message.content_type == types.ContentType.PHOTO:
             await message.reply(
                 "Photo is not available in the chat. Please use the command from the bot menu."
@@ -155,7 +167,11 @@ async def other_message(message: types.Message):
                 store_message_in_history(message.chat.id, response, "assistant")
 
             # Send the response after typing is complete
-            await message.reply(response, parse_mode="MarkdownV2")
+            await message.reply(
+                response, 
+                parse_mode="MarkdownV2",
+                reply_markup=create_quick_access_keyboard(user_lang)
+            )
             logging.info(f"User {message.from_user.id} asked a question (LLM)")
 
     except Exception as e:

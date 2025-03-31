@@ -147,6 +147,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "language_choice": "🌐 Choose your language",
             "school_food_menu_header": "🍴 {day}'s School Food Menu 🍴\n\n",
             "chat_about_university": "Feel free to ask me any questions about the university! I can help with information about campus facilities, academic policies, and more.",
+            "input_field_placeholder": "Ask a question...",
         },
 
 
@@ -237,6 +238,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "language_change_failed": "언어 설정을 저장하려면 먼저 /register 를 사용해주세요",
             "language_choice": "🌐 원하는 언어를 선택하세요",
             "school_food_menu_header": "🍴 {day} 식사 옵션 🍴\n\n",
+            "input_field_placeholder": "칠문 입력",
         },
         Language.RU: {
             "test_string": "Добро пожаловать!",
@@ -325,6 +327,7 @@ Everything is a buffet, so you can pay once and eat as much as you want 🍴
             "language_change_failed": "Чтобы сохранить настройки языка, сначала используйте /register",
             "language_choice": "🌐 Выберите предпочитаемый язык",
             "school_food_menu_header": "🍴 Варианты питания на {day} 🍴\n\n",
+            "input_field_placeholder": "Задайте вопрос...",
         },
     }
 
