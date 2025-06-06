@@ -79,7 +79,7 @@ class KwangwoonUniversityApi:
                 )
                 return 1
 
-        async with self.session.get(public_key_url) as public_key_response:
+        async with self.session.post(public_key_url) as public_key_response:
             public_key_json = await public_key_response.json()
             public_key_str = public_key_json["publicKey"]
 
@@ -550,6 +550,6 @@ if __name__ == "__main__":
             student_photo_url = await student.get_student_photo_url()
             print(student_photo_url)
             print(student_info)
-            # print(todo_list)
+            print(todo_list)
 
     asyncio.run(main())
