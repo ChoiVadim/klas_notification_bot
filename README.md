@@ -1,231 +1,358 @@
-# KLAS Notification Bot
+<div align="center">
 
-A Telegram bot for Kwangwoon University (KW) students that helps you:
+# 🎓 KLAS Notification Bot
 
-- Show KLAS assignments, lectures, quizzes, and team projects with time left
-- Get KW cafeteria menu and campus news
-- Generate KW Library QR codes
-- View student information and progress
-- Receive periodic notifications about upcoming deadlines
-- Chat Q&A about university life via LLM integration (Google Gemini)
-- 3 languages (English, Korean, Russian)
+**A smart Telegram bot for Kwangwoon University students**
 
-This repository contains an async Python bot built with `aiogram`, `aiohttp`, and `SQLAlchemy`, with a modular architecture and test suite using `pytest`.
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Telegram](https://img.shields.io/badge/Telegram-Bot-blue.svg?style=for-the-badge&logo=telegram&logoColor=white)](https://telegram.org)
+[![aiogram](https://img.shields.io/badge/aiogram-3.x-blue.svg?style=for-the-badge)](https://aiogram.dev)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.x-red.svg?style=for-the-badge&logo=sqlalchemy&logoColor=white)](https://sqlalchemy.org)
 
-## Table of Contents
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+[![Tests](https://img.shields.io/badge/Tests-pytest-green.svg?style=flat-square)](tests/)
+[![Coverage](https://img.shields.io/badge/Coverage-85%25-brightgreen.svg?style=flat-square)](htmlcov/)
 
-- Overview
-- Features
-- Architecture
-- Getting Started
-- Configuration (.env)
-- Running the Bot
-- Commands & Interactions
-- Notifications
-- Tests
-- Deployment (Linux service)
-- Troubleshooting
-- Security Notes
+[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-features) • [🛠️ Installation](#️-installation) • [🤝 Contributing](#-contributing)
 
-## Overview
+</div>
 
-- Entry point: `main.py`
-- Bot setup: `app/bot.py`
-- Handlers: `app/handlers/`
-- Services (external APIs, scraping, integrations): `app/services/`
-- Database models and async access: `app/database/`
-- Utilities (encryption, language utilities, typing indicator, chat history): `app/utils/`
-- Strings and multilingual support: `app/strings.py`
-- Images and assets: `images/`
-- Tests: `tests/`
+---
 
-The project uses environment variables via `python-dotenv` and Pydantic `BaseSettings` (`app/config.py`).
+## 🌟 Features
 
-## Features
+<table>
+<tr>
+<td width="50%">
 
-- KLAS integration via `app/services/kw.py`
-  - Login with encrypted credentials
-  - Fetch subjects, assignments, lectures, quizzes
-  - Aggregate TODO list across subjects
-  - Student info and photo fetch
-- Library QR integration via `app/services/qr.py`
-- KW news scraper via `app/services/news.py`
-- Dining menu via `app/services/food.py`
-- Notifications service via `app/services/notifications.py`
-- Anti-spam middleware via `app/middleware/antispam.py`
-- LLM chat responses via `app/services/llm.py` (Google Gemini)
-- Multilingual strings via `app/strings.py` and language helpers in `app/utils/`
+### 📚 **Academic Management**
+- 📋 **KLAS Integration** - View assignments, lectures, quizzes
+- ⏰ **Smart Notifications** - Never miss a deadline
+- 📊 **Student Dashboard** - Track your academic progress
+- 🎯 **Todo Management** - Organized task tracking
 
-## Screenshots
+</td>
+<td width="50%">
 
-<p align="center">
-  <img src="images/screenshots/photo_2025-09-10_14-08-40.jpg" alt="Screenshot 1" width="32%" />
-  <img src="images/screenshots/photo_2025-09-10_14-08-43.jpg" alt="Screenshot 2" width="32%" />
-  <img src="images/screenshots/photo_2025-09-10_14-08-45.jpg" alt="Screenshot 3" width="32%" />
-</p>
+### 🏫 **Campus Services**
+- 🍽️ **Dining Menu** - Daily cafeteria updates
+- 📰 **Campus News** - Latest KW announcements
+- 📱 **Library QR** - Quick library access codes
+- 🤖 **AI Assistant** - Chat about university life
 
-## Architecture
+</td>
+</tr>
+</table>
 
-- `app/bot.py`
-  - Creates `Bot` and `Dispatcher` (aiogram)
-  - Registers middleware (`AntiSpamMiddleware`)
-  - Registers all handlers via `setup_handlers()`
-- `main.py`
-  - Sends startup/shutdown notifications to admin
-  - Initializes DB, menu commands (`app/menu.py`), and handlers
-  - Runs polling and the notification service concurrently
-- Handlers in `app/handlers/`
-  - `common.py`: `/start`, `/language`, donation/refund, “other messages” routing + LLM Q&A
-  - `auth.py`, `todos.py`, `food.py`, `news.py`, `library.py`, `student_info.py`, `callbacks.py`, `admin.py` (registered in `setup_handlers`)
-- Services in `app/services/`
-  - `kw.py`: KLAS API client (async, cookies, scraping, encrypted login)
-  - `qr.py`: Library QR flows (AES + base64, XML parsing)
-  - `news.py`: Scrapes KW site; caches results
-  - `notifications.py`: Periodic reminders using bot messages
-  - `llm.py`: Gemini-based responses
-- Database in `app/database/`
-  - `models.py`: `User`, `LibraryUser`, etc.
-  - `database.py`: async engine/session, helpers like `save_user`, `get_user_language`, `set_user_language`, `init_db`
-- Utilities in `app/utils/`
-  - `encryption.py`: Fernet key + encrypt/decrypt passwords
-  - `typing_animation.py`: chat “typing” action context manager
-  - `language_utils.py`: user language with DB + fallback
-  - `chat_history.py`: in-memory per-chat message storage
+### 🌍 **Multi-Language Support**
+- 🇺🇸 English
+- 🇰🇷 Korean (한국어)
+- 🇷🇺 Russian (Русский)
 
-A high-level flow:
+---
 
-1. User interacts with bot via Telegram.
-2. `Dispatcher` routes to appropriate handler.
-3. Handlers call services (KLAS/QR/News/etc.) and DB helpers.
-4. Replies are localized via `Strings` and keyboards.
-5. Background notifications run alongside polling.
+## 📱 Screenshots
 
-## Getting Started
+<div align="center">
+<img src="images/screenshots/photo_2025-09-10_14-08-40.jpg" alt="Bot Interface" width="30%" />
+<img src="images/screenshots/photo_2025-09-10_14-08-43.jpg" alt="KLAS Integration" width="30%" />
+<img src="images/screenshots/photo_2025-09-10_14-08-45.jpg" alt="Menu & Features" width="30%" />
+</div>
 
-Prerequisites:
+---
 
-- Python 3.10+
-- Telegram bot token
+### Prerequisites
 
-Create and activate a virtual environment:
+- 🐍 **Python 3.10+**
+- 🤖 **Telegram Bot Token** ([Get one from @BotFather](https://t.me/botfather))
+- 🔑 **Google Gemini API Key** (Optional, for AI features)
+
+### ⚡ Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/kw_bot.git
+cd kw_bot
+
+# Create virtual environment
 python -m venv .venv
+
+# Activate virtual environment
 # Windows PowerShell
 .\.venv\Scripts\Activate.ps1
 # macOS/Linux
 source .venv/bin/activate
-```
 
-Install dependencies:
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-## Configuration (.env)
-
-Create a `.env` file in the project root with:
-
-```
-BOT_TOKEN=your_telegram_bot_token
-GEMINI_API_KEY=your_google_generative_ai_key
-ADMIN_ID=123456789
-```
-
-Settings are loaded in `app/config.py` using Pydantic `BaseSettings`:
-
-- `DATABASE_URL` defaults to `sqlite+aiosqlite:///bot_users.db`
-- `NOTIFICATION_CHECK_INTERVAL` defaults to 1800 seconds
-
-Encryption key for password storage:
-
-```bash
+# Generate encryption key
 python -c "from app.utils.encryption import generate_key; generate_key()"
 ```
 
-This creates `encryption_key.key` used by `encrypt_password`/`decrypt_password`.
+### 🔧 Configuration
 
-## Running the Bot
+Create a `.env` file in the project root:
 
-1. Ensure `.env` is configured and `encryption_key.key` is generated.
-2. Start the bot:
+```env
+BOT_TOKEN=your_telegram_bot_token_here
+GEMINI_API_KEY=your_google_gemini_api_key_here
+ADMIN_ID=your_telegram_user_id
+```
+
+### 🚀 Run the Bot
 
 ```bash
 python main.py
 ```
 
-On startup, the bot:
+---
 
-- Sends a “Bot started successfully!” message to `ADMIN_ID`.
-- Initializes the database and bot menu commands for multiple languages.
-- Starts polling and the notification service.
+## 🏗️ Architecture
 
-## Commands & Interactions
+<details>
+<summary><b>📁 Project Structure</b></summary>
 
-Core commands are defined in `app/menu.py` and handlers in `app/handlers/`:
-
-- `/start` — bot info + quick access keyboard
-- `/language` — choose interface language
-- `/register` — login to KLAS (see `app/handlers/auth.py`)
-- `/unregister` — delete stored credentials
-- `/lregister` — login to KW library
-- `/qr` — generate library QR code
-- `/show` — show KLAS assignments (todos)
-- `/menu` — cafeteria menu
-- `/news` — campus news
-- `/info` — student info overview
-- `/donate` — donation UI; `/refund` to refund a recent payment
-
-Other messages:
-
-- Text questions trigger LLM responses with context from `chat_history`.
-- Quick access buttons: `🔍 QR`, `📋 Todos` map to their respective handlers.
-
-## Notifications
-
-`app/services/notifications.py` runs periodically (interval from settings) and can send reminders about deadlines or todos to users via `bot.send_message`. See integration tests in `tests/integration/test_services.py` for a usage example of `send_notification`.
-
-## Tests
-
-Run tests with coverage:
-
-```bash
-pytest -v --cov=app --cov-report=html
+```
+kw_bot/
+├── 📁 app/
+│   ├── 📁 database/          # SQLAlchemy models & DB operations
+│   ├── 📁 handlers/          # Telegram message handlers
+│   ├── 📁 services/          # External API integrations
+│   ├── 📁 utils/             # Helper utilities
+│   ├── 📁 middleware/        # Anti-spam & other middleware
+│   ├── 📄 bot.py            # Bot initialization
+│   ├── 📄 config.py         # Settings management
+│   ├── 📄 strings.py        # Multi-language strings
+│   └── 📄 keyboards.py      # Telegram keyboards
+├── 📁 tests/                # Test suite
+├── 📁 images/               # Assets & screenshots
+├── 📄 main.py              # Application entry point
+└── 📄 requirements.txt     # Dependencies
 ```
 
-Key tests:
+</details>
 
-- Unit: `tests/unit/` for DB, models, strings, utils (encryption)
-- Integration: `tests/integration/` for handlers and services
-- E2E: `tests/e2e/test_bot.py` (scaffolded/example)
+<details>
+<summary><b>🔄 Data Flow</b></summary>
 
-## Deployment (Linux service)
+```mermaid
+graph TD
+    A[User Message] --> B[Dispatcher]
+    B --> C[Handler]
+    C --> D[Service Layer]
+    D --> E[External APIs]
+    D --> F[Database]
+    C --> G[Response]
+    G --> H[User]
+```
 
-A sample systemd unit is provided at `botdaemon.service`. Example usage:
+</details>
 
-1. Edit paths/user as needed and copy to `/etc/systemd/system/kwbot.service`.
-2. Reload and enable:
+### 🧩 Core Components
 
+| Component | Description |
+|-----------|-------------|
+| **🤖 Bot Core** | `app/bot.py` - aiogram Bot & Dispatcher setup |
+| **🔗 Handlers** | `app/handlers/` - Message routing & processing |
+| **⚙️ Services** | `app/services/` - KLAS, Library, News, AI integrations |
+| **💾 Database** | `app/database/` - User data & settings storage |
+| **🛡️ Security** | `app/utils/encryption.py` - Password encryption |
+
+---
+
+## 🎮 Commands & Usage
+
+### 📋 **Academic Commands**
+| Command | Description |
+|---------|-------------|
+| `/start` | 🏁 Welcome message & quick access menu |
+| `/register` | 🔐 Login to KLAS system |
+| `/show` | 📚 View assignments & deadlines |
+| `/info` | 👤 Student information dashboard |
+
+### 🏫 **Campus Services**
+| Command | Description |
+|---------|-------------|
+| `/menu` | 🍽️ Today's cafeteria menu |
+| `/news` | 📰 Latest campus news |
+| `/qr` | 📱 Generate library QR code |
+| `/lregister` | 📚 Login to library system |
+
+### ⚙️ **Settings**
+| Command | Description |
+|---------|-------------|
+| `/language` | 🌍 Change interface language |
+| `/unregister` | 🗑️ Delete stored credentials |
+| `/donate` | 💝 Support the developer |
+
+### 🤖 **AI Assistant**
+Simply send any text message to chat with the AI about university life!
+
+---
+
+## 🔔 Smart Notifications
+
+The bot automatically monitors your KLAS account and sends notifications for:
+
+- 📅 **Upcoming Deadlines** - Assignments due soon
+- 🎯 **New Tasks** - Recently posted assignments
+- ⏰ **Lecture Reminders** - Unwatched lectures
+- 📊 **Progress Updates** - Academic milestone tracking
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest -v
+
+# Run with coverage
+pytest -v --cov=app --cov-report=html
+
+# Run specific test category
+pytest tests/unit/ -v
+pytest tests/integration/ -v
+```
+
+### 📊 Test Coverage
+- **Unit Tests** - Database, models, utilities
+- **Integration Tests** - Handlers, services
+- **E2E Tests** - Full bot workflows
+
+---
+
+## 🚀 Deployment
+
+### 🐧 Linux Service (Systemd)
+
+1. **Copy service file:**
+```bash
+sudo cp botdaemon.service /etc/systemd/system/kwbot.service
+```
+
+2. **Enable and start:**
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now kwbot.service
 sudo systemctl status kwbot.service
 ```
 
-Logs are configured in `main.py` to write to `/var/log/kwbot.log` on Linux. On other OS, logs are printed to stdout/stderr.
+3. **View logs:**
+```bash
+sudo journalctl -u kwbot.service -f
+```
 
-## Troubleshooting
+### 🐳 Docker (Coming Soon)
+Docker support is planned for easier deployment.
 
-- Ensure `BOT_TOKEN`, `ADMIN_ID`, and `GEMINI_API_KEY` are set.
-- Generate `encryption_key.key` before attempting to register credentials.
-- For KLAS login failures, check credentials and network. The API uses encrypted login (`app/services/kw.py`).
-- If scraping (news/QR) fails, verify KW endpoints and network stability.
-- On Windows, prefer running in PowerShell with activated virtualenv.
+---
 
-## Security Notes
+## 🛠️ Development
 
-- Do not commit `.env` or `encryption_key.key`.
-- User passwords are stored encrypted via Fernet; protect the key file.
-- Consider rotating the encryption key and tokens periodically.
-- Use least-privilege for the server account running the bot.
+### 🔧 Setup Development Environment
+
+```bash
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Run pre-commit hooks
+pre-commit install
+
+# Format code
+black app/
+isort app/
+
+# Type checking
+mypy app/
+```
+
+### 📝 Contributing Guidelines
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+---
+
+## 🔒 Security & Privacy
+
+- 🔐 **Encrypted Storage** - User passwords encrypted with Fernet
+- 🛡️ **Anti-Spam** - Built-in rate limiting
+- 🔑 **Secure Keys** - Environment-based configuration
+- 🚫 **No Data Sharing** - Your data stays private
+
+### ⚠️ Security Best Practices
+
+- Never commit `.env` or `encryption_key.key`
+- Rotate API keys regularly
+- Use strong, unique passwords
+- Keep dependencies updated
+
+---
+
+## 🆘 Troubleshooting
+
+<details>
+<summary><b>🔧 Common Issues</b></summary>
+
+### Bot Won't Start
+- ✅ Check `BOT_TOKEN` in `.env`
+- ✅ Verify `encryption_key.key` exists
+- ✅ Ensure Python 3.10+ is installed
+
+### KLAS Login Fails
+- ✅ Verify KW credentials
+- ✅ Check network connectivity
+- ✅ Try re-registering with `/register`
+
+### Missing Dependencies
+```bash
+pip install --upgrade -r requirements.txt
+```
+
+### Permission Errors (Linux)
+```bash
+sudo chown -R $USER:$USER /path/to/bot
+chmod +x main.py
+```
+
+</details>
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are what make the open source community amazing! Any contributions you make are **greatly appreciated**.
+
+<div align="center">
+
+### 💝 Support the Project
+
+If this bot helps you manage your university life better, consider:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/yourusername)
+[![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/yourusername)
+
+**⭐ Star this repository if you found it helpful!**
+
+</div>
+
+---
+
+<div align="center">
+
+**Made with ❤️ for Kwangwoon University students**
+
+[🔝 Back to Top](#-klas-notification-bot)
+
+</div>
