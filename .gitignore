@@ -9,3 +9,5 @@ log.txt
 htmlcov/
 .pytest_cache/
 .coverage
+TASK.md
+repomix*
